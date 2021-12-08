@@ -1,0 +1,2 @@
+Adafruit CircuitPython 7.0.0 on 2021-09-20; Adafruit Metro ESP32S2 with ESP32S2
+Board ID:adafruit_metro_esp32s2
