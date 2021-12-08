@@ -1,6 +1,6 @@
 ### Hi there, I'm Pavol 👋 
 
-[![Instagram Follow](https://static.wixstatic.com/media/57724c_fe6f456fd3474e8fb8177546e0eb1310~mv2.png)](https://www.instagram.com/pavols_lab/)
+[![Instagram Follow](https://static.wixstatic.com/media/57724c_96f120fd410347aca1c7358a1d0222ac~mv2.png)](https://www.instagram.com/pavols_lab/)
 
 ## You have received and unboxed your MoonClock. Congratulations!
 
