@@ -169,21 +169,21 @@ while True:
             display2.pixel(x - 5, y + 0, c)
     for y, row in enumerate(FIFTH):
         for x, c in enumerate(row):
-            display2.pixel(x + 81, y + 0, c)
+            display2.pixel(x + 75, y + 0, c)
 
     for y, row in enumerate(FOURTH):
         for x, c in enumerate(row):
             display3.pixel(x - 5, y + 0, c)
     for y, row in enumerate(THIRD):
         for x, c in enumerate(row):
-            display3.pixel(x + 81, y + 0, c)
+            display3.pixel(x + 75, y + 0, c)
 
     for y, row in enumerate(SECOND):
         for x, c in enumerate(row):
             display4.pixel(x - 5, y + 0, c)
     for y, row in enumerate(FIRST):
         for x, c in enumerate(row):
-            display4.pixel(x + 81, y + 0, c)
+            display4.pixel(x + 75, y + 0, c)
 
     #for y, row in enumerate(BTC):
     #    for x, c in enumerate(row):
