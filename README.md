@@ -2,7 +2,7 @@
 
 [![Instagram Follow](https://static.wixstatic.com/media/57724c_6b5ab8bf75cc4a33b90e16e340814ae9~mv2.png)](https://www.instagram.com/pavols_lab/)
 
-### MoonClock website - (https://moonclock.com)
+### MoonClock website - https://moonclock.com
 
 ## You have received and unboxed your MoonClock. Congratulations!
 
