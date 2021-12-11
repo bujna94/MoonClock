@@ -15,7 +15,9 @@ import adafruit_requests
 
 
 # URLs to fetch from
-URL = "https://mempool.space/api/blocks/tip/height"
+URL_BLOCKHEIGHT = "https://mempool.space/api/blocks/tip/height"
+URL_PRICE = "https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd"
+URL_PENDING_TXS = "https://bitcoinexplorer.org/api/mempool/count"
 
 # Get wifi details and more from a secrets.py file
 try:
@@ -92,25 +94,51 @@ def decide(number):
         return DOT
         print('THIS IS DOT')
 
+
+cycle = 0
+cases = 2
 while True:
 
-
+    string = "0"
     #print("Fetching json from", URL)
     #response = requests.get(URL)
-
     #a = response.json()
-
     #btc_price = a['bitcoin']['usd']
 
     #print('This is BTC price: ' + str(btc_price))
     #string = str(btc_price)
+    if cycle == 0:
+        try:
+            print ("Fetching block height from", URL_BLOCKHEIGHT)
+            response = requests.get(URL_BLOCKHEIGHT)
 
-    print ("Fetching block height from", URL)
-    response = requests.get(URL)
+            #decode from b'111111'
+            string = response.content.decode()
+            print('This is block height: ' + string)
+        except:
+            string = string
+    elif cycle == 1:
+        try:
+            print("Fetching json from", URL_PRICE)
+            response = requests.get(URL_PRICE)
+            a = response.json()
+            btc_price = a['bitcoin']['usd']
+            string = str(btc_price)
+            print('This is BTC price: ' + string )
+        except:
+            string = string
+    elif cycle == 2:
+        try:
+            print ("Fetching pending txs from", URL_PENDING_TXS)
+            response = requests.get(URL_PENDING_TXS)
 
-    #decode from b'111111'
-    string = response.content.decode()
-
+            #decode from b'111111'
+            string = str (response.content.decode() ) 
+            print('This is number of pending txs: ' + string )
+        except:
+            string = string
+    
+    print ("String : " + string )
     try:
         FIRST = decide(string[-1])
         print('FIRST working')
@@ -160,13 +188,19 @@ while True:
     display4.fill(0) # Clear the display
     display5.fill(0) # Clear the display
 
-    #for y, row in enumerate(DOLLAR):
-    #    for x, c in enumerate(row):
-    #        display1.pixel(x + 0, y + 0, c)
+        #for y, row in enumerate(DOLLAR):
+        #    for x, c in enumerate(row):
+        #        display1.pixel(x + 0, y + 0, c)
 
-    for y, row in enumerate(SIXTH):
-        for x, c in enumerate(row):
-            display2.pixel(x - 5, y + 0, c)
+    if cycle == 1:
+        for y, row in enumerate(DOLLAR):
+            for x, c in enumerate(row):
+                display2.pixel(x - 35, y + 0, c)
+    elif cycle == 0:
+        for y, row in enumerate(SIXTH):
+            for x, c in enumerate(row):
+                display2.pixel(x - 5, y + 0, c)
+
     for y, row in enumerate(FIFTH):
         for x, c in enumerate(row):
             display2.pixel(x + 75, y + 0, c)
@@ -195,5 +229,14 @@ while True:
     display4.show()
     display5.show()
 
-    time.sleep(60)
+    print ( 'Cycle: ' + str(cycle) + ' done')
+
+
+    if ( cycle < cases ):
+        cycle+=1;
+    elif ( cycle == cases ):
+        cycle = 0;
+
+
+    time.sleep(1)
 
