@@ -258,7 +258,7 @@ def get_prague_time ():
 
 
     
-sleep_time=5
+sleep_time=10
 while True:
 
     time_to_display ( get_prague_time() , ":" )
