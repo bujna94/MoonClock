@@ -17,7 +17,7 @@ What now?
 That's all!
 
 
-## Want more Crypto?
+## Want more Crypto or just adjust the settings?
 
 We all love Bitcoin, sure, but maybe you want to see the current price in another currency or completely another Crypto? No problem. MoonClock is ready for that!
 
@@ -25,6 +25,6 @@ We all love Bitcoin, sure, but maybe you want to see the current price in anothe
 
 2. Remove all files & folders from the "MOONCLOCK" drive.
 
-3. Choose which folder is suitable for you (for example USD_BTC or EUR_ETH etc...) & copy the content of the folder to the "MOONCLOCK" USB drive. (Don't forget to change your WiFi details again in the "secrets.py" file)
+3. Configure your cryptocurrencies in conf.py and copy the content of the CYCLE folder to the "MOONCLOCK" USB drive. (Don't forget to change your WiFi details again in the "secrets.py" file if you have to)
 
 Wait ~2 minutes until new crypto will be shown on MoonClock.
