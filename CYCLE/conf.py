@@ -14,5 +14,4 @@ conf = [
 conf = [
         {'name' : 'bitcoin',    'value' : 'usd',            'prefix' : '$', 'postfix':'',   'remove_decimal': 1, 'sleep_time' : 30 },
         {'name' : 'time',       'value' : 'Europe/Prague',  'prefix' : '',  'postfix':'',   'remove_decimal': 0, 'sleep_time' : 30 },
-        {'name' : 'polkadot',   'value' : 'eur',            'prefix' : '',  'postfix':'€',  'remove_decimal': 0, 'sleep_time' : 30 },
 ]
