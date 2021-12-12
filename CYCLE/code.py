@@ -134,11 +134,10 @@ def string_to_display (string, prefix, postfix):
     display3.show()
     display4.show()
     display5.show()
-    return 0
 
 #formats time and shows it on displays
 def time_to_display (string, colon):
-    centered_string = center_date ( string )
+    centered_string = ("  " + string + "  ")
     print_time (display1, centered_string[0], centered_string[1], 0);
     print_time (display2, centered_string[2], centered_string[3], 0);
     print_time (display3, centered_string[4], centered_string[5], 1);
@@ -149,15 +148,14 @@ def time_to_display (string, colon):
     display3.show()
     display4.show()
     display5.show()
-    return 0
 
 
 #accepts display, two numbers, colon_boolean. shows two numbers and colon in the center display if colon_boolean (third display) 
 def print_time (display, l1, l2, colon_boolean):
     bin_l1 = decide(l1)
     bin_l2 = decide(l2)
-
     display.fill(0) # Clear the display
+
     if colon_boolean:
         for y, row in enumerate(LARGECOLON):
             for x, c in enumerate(row):
@@ -174,7 +172,6 @@ def print_time (display, l1, l2, colon_boolean):
             c = int(c)
             if (c):
                 display.pixel(x + 75, y + 0, int(c))
-    return 0
 
 def print_logo (display, logo):
     bin_logo = decide(logo)
@@ -184,8 +181,6 @@ def print_logo (display, logo):
         for x, c in enumerate(row):
             display.pixel(x + 0, y + 0, int(c))
     
-
-
 #accepts display nad two numbers to show from numbers.py
 def print_display (display, l1, l2):
     bin_l1 = decide(l1)
@@ -200,8 +195,6 @@ def print_display (display, l1, l2):
     for y, row in enumerate(bin_l2):
         for x, c in enumerate(row):
             display.pixel(x + 75, y + 0, int(c))
-
-    return 0
 
 #accepts any string and returns centered version, max length is 6, everything after 6th character is not considered. another 4 characters are locked for logo and currency
 def center (string):
@@ -225,42 +218,15 @@ def center (string):
     elif (length == 0):
         return "    " + string + "   "
 
-#accepts any string and returns centered version, max length is 6, everything after 6th character is not considered. another 4 characters are locked for logo and currency
-def center_date (string):
-    length = len(string)
-    if (length > 10):
-        return string[0:10]
-    elif (length == 10):
-        return string
-    elif (length == 9):
-        return string + " "
-    elif (length == 8):
-        return " " + string + " "
-    elif (length == 7):
-        return " " + string + "  "
-    elif (length == 6):
-        return "  " + string + "  "
-    elif (length == 5):
-        return "  " + string + "   "
-    elif (length == 4):
-        return "   " + string + "   "
-    elif (length == 3):
-        return "   " + string + "    "
-    elif (length == 2):
-        return "    " + string + "    "
-    elif (length == 1):
-        return "    " + string + "     "
-    elif (length == 0):
-        return "     " + string + "     "
-
-
-
 #get current time (hours, minutes)
 def get_time (timezone):
     URL = "http://worldtimeapi.org/api/timezone/" + timezone
 
     print("Fetching json from", URL)
-    response = requests.get(URL)
+    try:
+        response = requests.get(URL)
+    except:
+        print ("Something went wrong")
     a = response.json()
     value = a['datetime']
 
@@ -272,7 +238,10 @@ def get_time (timezone):
 def get_crypto_price(ticker, currency, to_integer):
     URL = "https://api.coingecko.com/api/v3/simple/price?ids=" + ticker + "&vs_currencies=" + currency
     print("Fetching json from", URL)
-    response = requests.get(URL)
+    try:
+        response = requests.get(URL)
+    except:
+        print ("Something went wrong")
     a = response.json()
     price = a[ticker][currency]
 
@@ -283,9 +252,6 @@ def get_crypto_price(ticker, currency, to_integer):
 
     print('This is ' + ticker + ' price: ' + value )
     return value
-
-
-
 
 #main cycle of cryptocurrencies
 while True:
@@ -300,37 +266,6 @@ while True:
         else:
             string_to_display ( get_crypto_price(name, value, decimal), prefix, postfix )
         time.sleep(dictionary['sleep_time'])
-
-
-"""
-for key in conf:
-    value = conf[key]
-    print("TEST :" + key + " value: " + value)
-    if (key == "time"):
-        time_to_display ( get_time( value ) , ":" )
-    else:
-        string_to_display ( "$" + get_crypto_price(key, value, 1) )
-    time.sleep(sleep_time)
-
-
-while True:
-    string_to_display ( "$" + get_crypto_price("bitcoin", "usd", 1) )
-    time.sleep(sleep_time)
-    
-    string_to_display ( "$" + get_crypto_price("ethereum", "usd", 1) )
-    time.sleep(sleep_time)
-    
-    string_to_display ( "$" + get_crypto_price("litecoin", "usd", 1) )
-    time.sleep(sleep_time)
-
-    time_to_display ( get_time( "Europe/Prague" ) , ":" )
-    time.sleep(sleep_time)
-
-"""
-
-
-
-
 
 
 
