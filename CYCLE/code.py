@@ -253,7 +253,7 @@ def get_prague_time ():
     value = a['datetime']
 
     string = value[11:13] + " " + " " + value[14:16]
-    print('This is DATE value: ' +  value[11:13] + "separator" +  value[14:16] )
+    print('This is DATE value: ' +  value[11:13] + ":" +  value[14:16] )
     return string
 
 
