@@ -66,7 +66,10 @@ print("Connected to %s!"%secrets["ssid"])
 print("My IP address is", wifi.radio.ipv4_address)
 
 ipv4 = ipaddress.ip_address("8.8.4.4")
-print("Ping google.com: %f ms" % (wifi.radio.ping(ipv4)*1000))
+try:
+    print("Ping google.com: %f ms" % (wifi.radio.ping(ipv4)*1000))
+except:
+    print("Cannot ping google.com")
 
 pool = socketpool.SocketPool(wifi.radio)
 requests = adafruit_requests.Session(pool, ssl.create_default_context())
@@ -96,13 +99,13 @@ def decide(number):
     elif number == str('.'):
         return DOT
     elif number == str('$'):
-        return DOLLAR
+        return DOLLARLARGE
     elif number == str('€'):
         return EURO
     elif number == str(':'):
         return LARGECOLON
     elif number == str('B'):
-        return BTC
+        return BTC 
     elif number == str('E'):
         return ETH
     elif number == str('L'):
@@ -119,13 +122,13 @@ def decide(number):
 
 
 #accepts string and shows it on displays
-def string_to_display (string):
+def string_to_display (string, prefix, postfix):
     centered_string = center ( string )
-    print_display (display1, centered_string[0], centered_string[1]);
-    print_display (display2, centered_string[2], centered_string[3]);
-    print_display (display3, centered_string[4], centered_string[5]);
-    print_display (display4, centered_string[6], centered_string[7]);
-    print_display (display5, centered_string[8], centered_string[9]);
+    print_logo (display1, prefix);
+    print_display (display2, centered_string[0], centered_string[1]);
+    print_display (display3, centered_string[2], centered_string[3]);
+    print_display (display4, centered_string[4], centered_string[5]);
+    print_logo (display5, postfix);
     display1.show()
     display2.show()
     display3.show()
@@ -135,7 +138,7 @@ def string_to_display (string):
 
 #formats time and shows it on displays
 def time_to_display (string, colon):
-    centered_string = center ( string )
+    centered_string = center_date ( string )
     print_time (display1, centered_string[0], centered_string[1], 0);
     print_time (display2, centered_string[2], centered_string[3], 0);
     print_time (display3, centered_string[4], centered_string[5], 1);
@@ -153,20 +156,35 @@ def time_to_display (string, colon):
 def print_time (display, l1, l2, colon_boolean):
     bin_l1 = decide(l1)
     bin_l2 = decide(l2)
+
     display.fill(0) # Clear the display
     if colon_boolean:
         for y, row in enumerate(LARGECOLON):
             for x, c in enumerate(row):
-                display.pixel(x + 0, y + 0, c)
+                c = int(c)
+                if (c):
+                    display.pixel(x + 0, y + 0, int(c))
     for y, row in enumerate(bin_l1):
         for x, c in enumerate(row):
-            if (c == 1):
-                display.pixel(x - 5, y + 0, c)
+            c = int(c)
+            if (c):
+                display.pixel(x - 5, y + 0, int(c))
     for y, row in enumerate(bin_l2):
         for x, c in enumerate(row):
-            if (c == 1):
-                display.pixel(x + 75, y + 0, c)
+            c = int(c)
+            if (c):
+                display.pixel(x + 75, y + 0, int(c))
     return 0
+
+def print_logo (display, logo):
+    bin_logo = decide(logo)
+    display.fill(0) # Clear the display
+
+    for y, row in enumerate(bin_logo):
+        for x, c in enumerate(row):
+            display.pixel(x + 0, y + 0, int(c))
+    
+
 
 #accepts display nad two numbers to show from numbers.py
 def print_display (display, l1, l2):
@@ -177,43 +195,65 @@ def print_display (display, l1, l2):
 
     for y, row in enumerate(bin_l1):
         for x, c in enumerate(row):
-            if (c == 1):
-                display.pixel(x - 5, y + 0, c)
+            display.pixel(x - 5, y + 0, int(c))
 
     for y, row in enumerate(bin_l2):
         for x, c in enumerate(row):
-            if (c == 1):
-                display.pixel(x + 75, y + 0, c)
+            display.pixel(x + 75, y + 0, int(c))
 
     return 0
 
-#accepts any string and returns centered version, max length is 10, everything after 10th character is not considered
+#accepts any string and returns centered version, max length is 6, everything after 6th character is not considered. another 4 characters are locked for logo and currency
 def center (string):
+    length = len(string)
+    if (length > 6):
+        return string[0:6]
+    elif (length == 6):
+        return string
+    elif (length == 5):
+        return " " + string
+    elif (length == 4):
+        return " " + string + " "
+    elif (length == 3):
+        return "  " + string + " "
+    elif (length == 3):
+        return "  " + string + "  "
+    elif (length == 2):
+        return "   " + string + "  "
+    elif (length == 1):
+        return "   " + string + "   "
+    elif (length == 0):
+        return "    " + string + "   "
+
+#accepts any string and returns centered version, max length is 6, everything after 6th character is not considered. another 4 characters are locked for logo and currency
+def center_date (string):
     length = len(string)
     if (length > 10):
         return string[0:10]
     elif (length == 10):
         return string
     elif (length == 9):
-        return " " + string
+        return string + " "
     elif (length == 8):
         return " " + string + " "
     elif (length == 7):
-        return "  " + string + " "
+        return " " + string + "  "
     elif (length == 6):
         return "  " + string + "  "
     elif (length == 5):
-        return "   " + string + "  "
+        return "  " + string + "   "
     elif (length == 4):
         return "   " + string + "   "
     elif (length == 3):
-        return "    " + string + "   "
+        return "   " + string + "    "
     elif (length == 2):
         return "    " + string + "    "
     elif (length == 1):
-        return "     " + string + "    "
+        return "    " + string + "     "
     elif (length == 0):
         return "     " + string + "     "
+
+
 
 #get current time (hours, minutes)
 def get_time (timezone):
@@ -224,7 +264,7 @@ def get_time (timezone):
     a = response.json()
     value = a['datetime']
 
-    string = value[11:13] + " " + " " + value[14:16]
+    string = value[11:13] + "  " + value[14:16]
     print('This is time value: ' +  value[11:13] + ":" +  value[14:16] )
     return string
 
@@ -258,7 +298,7 @@ while True:
         if (name == "time"):
             time_to_display ( get_time( value ) , ":" )
         else:
-            string_to_display ( prefix + get_crypto_price(name, value, decimal) + postfix )
+            string_to_display ( get_crypto_price(name, value, decimal), prefix, postfix )
         time.sleep(dictionary['sleep_time'])
 
 
