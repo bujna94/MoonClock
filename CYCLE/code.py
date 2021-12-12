@@ -159,18 +159,14 @@ def print_time (display, l1, l2, colon_boolean):
     if colon_boolean:
         for y, row in enumerate(LARGECOLON):
             for x, c in enumerate(row):
-                c = int(c)
-                if (c):
-                    display.pixel(x + 0, y + 0, int(c))
-    for y, row in enumerate(bin_l1):
-        for x, c in enumerate(row):
-            c = int(c)
-            if (c):
+                display.pixel(x + 0, y + 0, int(c))
+    if (l1 != " "):
+        for y, row in enumerate(bin_l1):
+            for x, c in enumerate(row):
                 display.pixel(x - 5, y + 0, int(c))
-    for y, row in enumerate(bin_l2):
-        for x, c in enumerate(row):
-            c = int(c)
-            if (c):
+    if (l1 != " "):
+        for y, row in enumerate(bin_l2):
+            for x, c in enumerate(row):
                 display.pixel(x + 75, y + 0, int(c))
 
 def print_logo (display, logo):
@@ -187,14 +183,14 @@ def print_display (display, l1, l2):
     bin_l2 = decide(l2)
 
     display.fill(0) # Clear the display
-
-    for y, row in enumerate(bin_l1):
-        for x, c in enumerate(row):
-            display.pixel(x - 5, y + 0, int(c))
-
-    for y, row in enumerate(bin_l2):
-        for x, c in enumerate(row):
-            display.pixel(x + 75, y + 0, int(c))
+    if (l1 != " "):
+        for y, row in enumerate(bin_l1):
+            for x, c in enumerate(row):
+                display.pixel(x - 5, y + 0, int(c))
+    if (l2 != " "):
+        for y, row in enumerate(bin_l2):
+            for x, c in enumerate(row):
+                display.pixel(x + 75, y + 0, int(c))
 
 #accepts any string and returns centered version, max length is 6, everything after 6th character is not considered. another 4 characters are locked for logo and currency
 def center (string):
