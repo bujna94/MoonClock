@@ -14,15 +14,18 @@ import socketpool
 import adafruit_requests
 
 
-# URLs to fetch from
-URL_BLOCKHEIGHT = "https://mempool.space/api/blocks/tip/height"
-URL_PENDING_TXS = "https://bitcoinexplorer.org/api/mempool/count"
-
 # Get wifi details and more from a secrets.py file
 try:
     from secrets import secrets
 except ImportError:
     print("WiFi secrets are kept in secrets.py, please add them there!")
+    raise
+
+# Get configuration from a conf.py file
+try:
+    from conf import conf
+except ImportError:
+    print("No configuration found in conf.py, please add them there!")
     raise
 
 WIDTH = 128
@@ -68,6 +71,7 @@ print("Ping google.com: %f ms" % (wifi.radio.ping(ipv4)*1000))
 pool = socketpool.SocketPool(wifi.radio)
 requests = adafruit_requests.Session(pool, ssl.create_default_context())
 
+#convert characters to binary representation
 def decide(number):
     if number == str(0):
         return ZERO
@@ -93,72 +97,78 @@ def decide(number):
         return DOT
     elif number == str('$'):
         return DOLLAR
+    elif number == str('€'):
+        return EURO
     elif number == str(':'):
         return LARGECOLON
+    elif number == str('B'):
+        return BTC
+    elif number == str('E'):
+        return ETH
+    elif number == str('L'):
+        return LTC
+    elif number == str('D'):
+        return DOGE
+    elif number == str('A'):
+        return ADA
+    elif number == str('P'):
+        return POLKADOT
     else:
         return EMPTY
         print ('this is empty or unsupported char')
 
 
-def string_to_display (string, colon):
+#accepts string and shows it on displays
+def string_to_display (string):
     centered_string = center ( string )
-
     print_display (display1, centered_string[0], centered_string[1]);
     print_display (display2, centered_string[2], centered_string[3]);
     print_display (display3, centered_string[4], centered_string[5]);
     print_display (display4, centered_string[6], centered_string[7]);
     print_display (display5, centered_string[8], centered_string[9]);
-
     display1.show()
     display2.show()
     display3.show()
     display4.show()
     display5.show()
-
     return 0
 
+#formats time and shows it on displays
 def time_to_display (string, colon):
     centered_string = center ( string )
-
     print_time (display1, centered_string[0], centered_string[1], 0);
     print_time (display2, centered_string[2], centered_string[3], 0);
     print_time (display3, centered_string[4], centered_string[5], 1);
     print_time (display4, centered_string[6], centered_string[7], 0);
     print_time (display5, centered_string[8], centered_string[9], 0);
-
     display1.show()
     display2.show()
     display3.show()
     display4.show()
     display5.show()
-
     return 0
 
 
-
+#accepts display, two numbers, colon_boolean. shows two numbers and colon in the center display if colon_boolean (third display) 
 def print_time (display, l1, l2, colon_boolean):
     bin_l1 = decide(l1)
     bin_l2 = decide(l2)
-
     display.fill(0) # Clear the display
     if colon_boolean:
         for y, row in enumerate(LARGECOLON):
             for x, c in enumerate(row):
                 display.pixel(x + 0, y + 0, c)
-
     for y, row in enumerate(bin_l1):
         for x, c in enumerate(row):
             if (c == 1):
                 display.pixel(x - 5, y + 0, c)
-
     for y, row in enumerate(bin_l2):
         for x, c in enumerate(row):
             if (c == 1):
                 display.pixel(x + 75, y + 0, c)
-
     return 0
 
-
+#accepts display nad two numbers to show from numbers.py
 def print_display (display, l1, l2):
     bin_l1 = decide(l1)
     bin_l2 = decide(l2)
@@ -177,11 +187,12 @@ def print_display (display, l1, l2):
 
     return 0
 
-
+#accepts any string and returns centered version, max length is 10, everything after 10th character is not considered
 def center (string):
     length = len(string)
-    print ( "Length of string is " + str( len(string) ) )
-    if (length == 10):
+    if (length > 10):
+        return string[0:10]
+    elif (length == 10):
         return string
     elif (length == 9):
         return " " + string
@@ -204,48 +215,9 @@ def center (string):
     elif (length == 0):
         return "     " + string + "     "
 
-    
-def get_btc_price ():
-
-    URL = "https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd"
-
-    print("Fetching json from", URL)
-    response = requests.get(URL)
-    a = response.json()
-    btc_price = a['bitcoin']['usd']
-
-    print('This is BTC price: ' + str(int(btc_price)))
-    string = str(int(btc_price))
-    return string
-
-def get_eth_price ():
-
-    URL = "https://api.coingecko.com/api/v3/simple/price?ids=ethereum&vs_currencies=usd"
-
-    print("Fetching json from", URL)
-    response = requests.get(URL)
-    a = response.json()
-    eth_price = a['ethereum']['usd']
-
-    print('This is ETH price: ' + str(int(eth_price)))
-    string = str(int(eth_price))
-    return string
-
-def get_ada_price ():
-
-    URL = "https://api.coingecko.com/api/v3/simple/price?ids=cardano&vs_currencies=usd"
-
-    print("Fetching json from", URL)
-    response = requests.get(URL)
-    a = response.json()
-    price = a['cardano']['usd']
-
-    print('This is ADA price: ' + str(price))
-    string = str(price)
-    return string
-
-def get_prague_time ():
-    URL = "http://worldtimeapi.org/api/timezone/Europe/Prague"
+#get current time (hours, minutes)
+def get_time (timezone):
+    URL = "http://worldtimeapi.org/api/timezone/" + timezone
 
     print("Fetching json from", URL)
     response = requests.get(URL)
@@ -253,25 +225,79 @@ def get_prague_time ():
     value = a['datetime']
 
     string = value[11:13] + " " + " " + value[14:16]
-    print('This is DATE value: ' +  value[11:13] + ":" +  value[14:16] )
+    print('This is time value: ' +  value[11:13] + ":" +  value[14:16] )
     return string
 
+#accepts crypto ticker ("bitcoin", "ethereum", "cardano" ,"polkadot"), fiat currency and to_integer (if true, no decimals are shown).
+def get_crypto_price(ticker, currency, to_integer):
+    URL = "https://api.coingecko.com/api/v3/simple/price?ids=" + ticker + "&vs_currencies=" + currency
+    print("Fetching json from", URL)
+    response = requests.get(URL)
+    a = response.json()
+    price = a[ticker][currency]
 
-    
-sleep_time=10
+    if (to_integer):
+        price = int(price)
+
+    value = str(price)
+
+    print('This is ' + ticker + ' price: ' + value )
+    return value
+
+
+
+
+#main cycle of cryptocurrencies
 while True:
+    for dictionary in conf:
+        name = str(dictionary['name'])
+        value = str(dictionary['value'])
+        decimal = dictionary['remove_decimal']
+        prefix = str(dictionary['prefix'])
+        postfix = str(dictionary['postfix'])
+        if (name == "time"):
+            time_to_display ( get_time( value ) , ":" )
+        else:
+            string_to_display ( prefix + get_crypto_price(name, value, decimal) + postfix )
+        time.sleep(dictionary['sleep_time'])
 
-    time_to_display ( get_prague_time() , ":" )
+
+"""
+for key in conf:
+    value = conf[key]
+    print("TEST :" + key + " value: " + value)
+    if (key == "time"):
+        time_to_display ( get_time( value ) , ":" )
+    else:
+        string_to_display ( "$" + get_crypto_price(key, value, 1) )
     time.sleep(sleep_time)
 
-    string_to_display ( "$" + get_btc_price(), "" )
+
+while True:
+    string_to_display ( "$" + get_crypto_price("bitcoin", "usd", 1) )
+    time.sleep(sleep_time)
+    
+    string_to_display ( "$" + get_crypto_price("ethereum", "usd", 1) )
+    time.sleep(sleep_time)
+    
+    string_to_display ( "$" + get_crypto_price("litecoin", "usd", 1) )
     time.sleep(sleep_time)
 
-    string_to_display ( "$" + get_eth_price(), "" )
+    time_to_display ( get_time( "Europe/Prague" ) , ":" )
     time.sleep(sleep_time)
 
-    string_to_display ( "$" + get_ada_price(), "" )
-    time.sleep(sleep_time)
+"""
+
+
+
+
+
+
+
+
+
+
+
 
 
 
