@@ -4,4 +4,4 @@
 secrets = {
     'ssid' : 'WIFI_SSID',
     'password' : 'WIFI_PASSWORD',
-    }
+}
