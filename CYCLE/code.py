@@ -1,18 +1,16 @@
-import time
-import os
-import board
-import busio
-import adafruit_ssd1306
-import adafruit_tca9548a
-
-from numbers import *
-
 import ipaddress
 import ssl
-import wifi
-import socketpool
-import adafruit_requests
+import time
 
+import adafruit_requests
+import adafruit_ssd1306
+import adafruit_tca9548a
+import board
+import busio
+import socketpool
+import wifi
+
+from numbers import *
 
 # Get wifi details and more from a secrets.py file
 try:
@@ -30,15 +28,15 @@ except ImportError:
 
 WIDTH = 128
 HEIGHT = 64
-CENTER_X = int(WIDTH/2)
-CENTER_Y = int(HEIGHT/2)
+CENTER_X = int(WIDTH / 2)
+CENTER_Y = int(HEIGHT / 2)
 
 SDA = board.IO10
 SCL = board.IO11
 
 i2c = busio.I2C(SCL, SDA)
 
-if(i2c.try_lock()):
+if (i2c.try_lock()):
     print("i2c.scan(): " + str(i2c.scan()))
     i2c.unlock()
 
@@ -57,24 +55,25 @@ print("My MAC addr:", [hex(i) for i in wifi.radio.mac_address])
 print("Available WiFi networks:")
 for network in wifi.radio.start_scanning_networks():
     print("\t%s\t\tRSSI: %d\tChannel: %d" % (str(network.ssid, "utf-8"),
-            network.rssi, network.channel))
+                                             network.rssi, network.channel))
 wifi.radio.stop_scanning_networks()
 
-print("Connecting to %s"%secrets["ssid"])
+print("Connecting to %s" % secrets["ssid"])
 wifi.radio.connect(secrets["ssid"], secrets["password"])
-print("Connected to %s!"%secrets["ssid"])
+print("Connected to %s!" % secrets["ssid"])
 print("My IP address is", wifi.radio.ipv4_address)
 
 ipv4 = ipaddress.ip_address("8.8.4.4")
 try:
-    print("Ping google.com: %f ms" % (wifi.radio.ping(ipv4)*1000))
+    print("Ping google.com: %f ms" % (wifi.radio.ping(ipv4) * 1000))
 except:
     print("Cannot ping google.com")
 
 pool = socketpool.SocketPool(wifi.radio)
 requests = adafruit_requests.Session(pool, ssl.create_default_context())
 
-#convert characters to binary representation
+
+# convert characters to binary representation
 def decide(number):
     if number == str(0):
         return ZERO
@@ -105,7 +104,7 @@ def decide(number):
     elif number == str(':'):
         return LARGECOLON
     elif number == str('B'):
-        return BTC 
+        return BTC
     elif number == str('E'):
         return ETH
     elif number == str('L'):
@@ -118,31 +117,32 @@ def decide(number):
         return POLKADOT
     else:
         return EMPTY
-        print ('this is empty or unsupported char')
+        print('this is empty or unsupported char')
 
 
-#accepts string and shows it on displays
-def string_to_display (string, prefix, postfix):
-    centered_string = center ( string )
-    print_logo (display1, prefix);
-    print_display (display2, centered_string[0], centered_string[1]);
-    print_display (display3, centered_string[2], centered_string[3]);
-    print_display (display4, centered_string[4], centered_string[5]);
-    print_logo (display5, postfix);
+# accepts string and shows it on displays
+def string_to_display(string, prefix, postfix):
+    centered_string = center(string)
+    print_logo(display1, prefix)
+    print_display(display2, centered_string[0], centered_string[1])
+    print_display(display3, centered_string[2], centered_string[3])
+    print_display(display4, centered_string[4], centered_string[5])
+    print_logo(display5, postfix)
     display1.show()
     display2.show()
     display3.show()
     display4.show()
     display5.show()
 
-#formats time and shows it on displays
-def time_to_display (string, colon):
+
+# formats time and shows it on displays
+def time_to_display(string, colon):
     centered_string = ("  " + string + "  ")
-    print_time (display1, centered_string[0], centered_string[1], 0);
-    print_time (display2, centered_string[2], centered_string[3], 0);
-    print_time (display3, centered_string[4], centered_string[5], 1);
-    print_time (display4, centered_string[6], centered_string[7], 0);
-    print_time (display5, centered_string[8], centered_string[9], 0);
+    print_time(display1, centered_string[0], centered_string[1], 0)
+    print_time(display2, centered_string[2], centered_string[3], 0)
+    print_time(display3, centered_string[4], centered_string[5], 1)
+    print_time(display4, centered_string[6], centered_string[7], 0)
+    print_time(display5, centered_string[8], centered_string[9], 0)
     display1.show()
     display2.show()
     display3.show()
@@ -150,94 +150,93 @@ def time_to_display (string, colon):
     display5.show()
 
 
-#accepts display, two numbers, colon_boolean. shows two numbers and colon in the center display if colon_boolean (third display) 
-def print_time (display, l1, l2, colon_boolean):
+def display_render(display, symbol, x_offset=0):
+    size = symbol[0]
+
+    for i in range(len(symbol[1])):
+        display.buffer[((i // size[0]) * WIDTH) + x_offset + (i % size[0]) + 1] = symbol[1][i]
+
+# accepts display, two numbers, colon_boolean. shows two numbers and colon in the center display if colon_boolean (third display)
+def print_time(display, l1, l2, colon_boolean):
     bin_l1 = decide(l1)
     bin_l2 = decide(l2)
-    display.fill(0) # Clear the display
+    display.fill(0)  # Clear the display
 
     if colon_boolean:
-        for y, row in enumerate(LARGECOLON):
-            for x, c in enumerate(row):
-                display.pixel(x + 0, y + 0, int(c))
-    if (l1 != " "):
-        for y, row in enumerate(bin_l1):
-            for x, c in enumerate(row):
-                display.pixel(x - 5, y + 0, int(c))
-    if (l1 != " "):
-        for y, row in enumerate(bin_l2):
-            for x, c in enumerate(row):
-                display.pixel(x + 75, y + 0, int(c))
+        display_render(display, LARGECOLON)
+    if l1 != " ":
+        display_render(display, bin_l1)
+    if l1 != " ":
+        display_render(display, bin_l2, 75)
 
-def print_logo (display, logo):
+
+def print_logo(display, logo):
     bin_logo = decide(logo)
-    display.fill(0) # Clear the display
+    display.fill(0)  # Clear the display
 
-    for y, row in enumerate(bin_logo):
-        for x, c in enumerate(row):
-            display.pixel(x + 0, y + 0, int(c))
-    
-#accepts display nad two numbers to show from numbers.py
-def print_display (display, l1, l2):
+    display_render(display, bin_logo)
+
+
+# accepts display nad two numbers to show from numbers.py
+def print_display(display, l1, l2):
     bin_l1 = decide(l1)
     bin_l2 = decide(l2)
 
-    display.fill(0) # Clear the display
-    if (l1 != " "):
-        for y, row in enumerate(bin_l1):
-            for x, c in enumerate(row):
-                display.pixel(x - 5, y + 0, int(c))
-    if (l2 != " "):
-        for y, row in enumerate(bin_l2):
-            for x, c in enumerate(row):
-                display.pixel(x + 75, y + 0, int(c))
+    display.fill(0)  # Clear the display
+    if l1 != " ":
+        display_render(display, bin_l1)
+    if l2 != " ":
+        display_render(display, bin_l2, 75)
 
-#accepts any string and returns centered version, max length is 6, everything after 6th character is not considered. another 4 characters are locked for logo and currency
-def center (string):
+
+# accepts any string and returns centered version, max length is 6, everything after 6th character is not considered. another 4 characters are locked for logo and currency
+def center(string):
     length = len(string)
-    if (length > 6):
+    if length > 6:
         return string[0:6]
-    elif (length == 6):
+    elif length == 6:
         return string
-    elif (length == 5):
+    elif length == 5:
         return " " + string
-    elif (length == 4):
+    elif length == 4:
         return " " + string + " "
-    elif (length == 3):
+    elif length == 3:
         return "  " + string + " "
-    elif (length == 3):
+    elif length == 3:
         return "  " + string + "  "
-    elif (length == 2):
+    elif length == 2:
         return "   " + string + "  "
-    elif (length == 1):
+    elif length == 1:
         return "   " + string + "   "
-    elif (length == 0):
+    elif length == 0:
         return "    " + string + "   "
 
-#get current time (hours, minutes)
-def get_time (timezone):
+
+# get current time (hours, minutes)
+def get_time(timezone):
     URL = "http://worldtimeapi.org/api/timezone/" + timezone
 
     print("Fetching json from", URL)
     try:
         response = requests.get(URL)
     except:
-        print ("Something went wrong")
+        print("Something went wrong")
     a = response.json()
     value = a['datetime']
 
     string = value[11:13] + "  " + value[14:16]
-    print('This is time value: ' +  value[11:13] + ":" +  value[14:16] )
+    print('This is time value: ' + value[11:13] + ":" + value[14:16])
     return string
 
-#accepts crypto ticker ("bitcoin", "ethereum", "cardano" ,"polkadot"), fiat currency and to_integer (if true, no decimals are shown).
+
+# accepts crypto ticker ("bitcoin", "ethereum", "cardano" ,"polkadot"), fiat currency and to_integer (if true, no decimals are shown).
 def get_crypto_price(ticker, currency, to_integer):
     URL = "https://api.coingecko.com/api/v3/simple/price?ids=" + ticker + "&vs_currencies=" + currency
     print("Fetching json from", URL)
     try:
         response = requests.get(URL)
     except:
-        print ("Something went wrong")
+        print("Something went wrong")
     a = response.json()
     price = a[ticker][currency]
 
@@ -246,10 +245,11 @@ def get_crypto_price(ticker, currency, to_integer):
 
     value = str(price)
 
-    print('This is ' + ticker + ' price: ' + value )
+    print('This is ' + ticker + ' price: ' + value)
     return value
 
-#main cycle of cryptocurrencies
+
+# main cycle of cryptocurrencies
 while True:
     for dictionary in conf:
         name = str(dictionary['name'])
@@ -258,17 +258,7 @@ while True:
         prefix = str(dictionary['prefix'])
         postfix = str(dictionary['postfix'])
         if (name == "time"):
-            time_to_display ( get_time( value ) , ":" )
+            time_to_display(get_time(value), ":")
         else:
-            string_to_display ( get_crypto_price(name, value, decimal), prefix, postfix )
+            string_to_display(get_crypto_price(name, value, decimal), prefix, postfix)
         time.sleep(dictionary['sleep_time'])
-
-
-
-
-
-
-
-
-
-
