@@ -1,6 +1,5 @@
 import ipaddress
 import ssl
-import time
 
 import adafruit_requests
 import adafruit_tca9548a
@@ -9,6 +8,7 @@ import busio
 import socketpool
 import wifi
 
+from apps import *
 from display import BetterSSD1306_I2C, DisplayGroup, str_rjust
 
 # Get wifi details and more from a secrets.py file
@@ -65,65 +65,24 @@ pool = socketpool.SocketPool(wifi.radio)
 requests = adafruit_requests.Session(pool, ssl.create_default_context())
 
 
-# formats time and shows it on displays
-
-# get current time (hours, minutes)
-def get_time(timezone):
-    URL = 'http://worldtimeapi.org/api/timezone/' + timezone
-
-    print('Fetching json from', URL)
-    try:
-        response = requests.get(URL)
-    except:
-        print('Something went wrong')
-        return ''
-    a = response.json()
-    value = a['datetime']
-
-    string = value[11:13] + ': ' + value[14:16]
-    print('This is time value: ' + value[11:13] + ':' + value[14:16])
-    return string
-
-
-# accepts crypto ticker ('bitcoin', 'ethereum', 'cardano' ,'polkadot'), fiat currency and to_integer (if true, no decimals are shown).
-def get_crypto_price(ticker, currency, to_integer):
-    URL = 'https://api.coingecko.com/api/v3/simple/price?ids=' + ticker + '&vs_currencies=' + currency
-    print('Fetching json from', URL)
-    try:
-        response = requests.get(URL)
-    except:
-        print('Something went wrong')
-    a = response.json()
-    price = a[ticker][currency]
-
-    if (to_integer):
-        price = int(price)
-
-    value = str(price)
-
-    print('This is ' + ticker + ' price: ' + value)
-    return value
-
-
 # main cycle of cryptocurrencies
 while True:
+    apps = []
+
+    # Initialize all apps
     for dictionary in conf:
         name = str(dictionary['name'])
         value = str(dictionary['value'])
         decimal = dictionary['remove_decimal']
         prefix = str(dictionary['prefix'])
         postfix = str(dictionary['postfix'])
+        sleep_time = dictionary['sleep_time']
 
         if name == 'time':
-            displays.clear()
-            t = get_time(value)
-            displays.render_string(t, center=True)
-            displays.show()
+            apps.append(TimeApp(value, requests, displays, duration=sleep_time, update_frequency=30))
         else:
-            displays.clear()
-            displays.render_string(
-                '{0}{1}{2}'.format(prefix, str_rjust(get_crypto_price(name, value, decimal), 7), postfix + ' '),
-                center=True, empty_as_transparent=True
-            )
-            displays.show()
-        time.sleep(dictionary['sleep_time'])
+            apps.append(CryptoApp(value, name, requests, displays, duration=sleep_time))
+
+    # Run apps
+    for app in apps:
+        app.run()
