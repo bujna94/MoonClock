@@ -31,9 +31,10 @@ class App:
 
 
 class TimeApp(App):
-    def __init__(self, *args, timezone='Europe/Prague', **kwargs):
+    def __init__(self, *args, timezone='Europe/Prague', show_seconds=False, **kwargs):
         super().__init__(*args, **kwargs)
         self.timezone = timezone
+        self.show_seconds = show_seconds
 
         URL = 'http://worldtimeapi.org/api/timezone/' + self.timezone
 
@@ -59,23 +60,41 @@ class TimeApp(App):
         minutes = int((current_timestamp % 86400 // 60) % 60)
         seconds = int(current_timestamp % 60)
 
-        string = '{}  {}  {}'.format(
-            str_rjust(str(hours), 2, '0'), str_rjust(str(minutes), 2, '0'), str_rjust(str(seconds), 2, '0'))
+        if not self.show_seconds and hours == self._last_hours and minutes == self._last_minutes:
+            time.sleep(60 - seconds)  # Wait for the next minute
+            return
+
+        if self.show_seconds:
+            string = '{}  {}  {}'.format(
+                str_rjust(str(hours), 2, '0'), str_rjust(str(minutes), 2, '0'), str_rjust(str(seconds), 2, '0'))
+        else:
+            string = '{}  {}'.format(
+                str_rjust(str(hours), 2, '0'), str_rjust(str(minutes), 2, '0'))
 
         if first:
             self.displays.clear()
-            self.displays.displays[1].render_character(':')
-            self.displays.displays[3].render_character(':')
+
+            if self.show_seconds:
+                self.displays.displays[1].render_character(':')
+                self.displays.displays[3].render_character(':')
+            else:
+                self.displays.displays[2].render_character(':')
             self.displays.show()
 
         self.displays.render_string(string, center=True)
 
-        if self._last_hours != hours:
-            self.displays.displays[0].show()
-        if self._last_minutes != minutes:
-            self.displays.displays[2].show()
-        if self._last_seconds != seconds:
-            self.displays.displays[4].show()
+        if self.show_seconds:
+            if self._last_hours != hours:
+                self.displays.displays[0].show()
+            if self._last_minutes != minutes:
+                self.displays.displays[2].show()
+            if self._last_seconds != seconds:
+                self.displays.displays[4].show()
+        else:
+            if self._last_hours != hours:
+                self.displays.displays[1].show()
+            if self._last_minutes != minutes:
+                self.displays.displays[3].show()
         sleep = 1 - (time.monotonic() - loop_start)
 
         if sleep > 0:
