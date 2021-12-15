@@ -71,6 +71,8 @@ class TimeApp(App):
             string = '{}  {}'.format(
                 str_rjust(str(hours), 2, '0'), str_rjust(str(minutes), 2, '0'))
 
+        print('This is current time: {}:{}:{}'.format(hours, minutes, seconds))
+
         if first:
             self._last_hours = None
             self._last_minutes = None
