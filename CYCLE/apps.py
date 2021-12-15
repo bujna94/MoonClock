@@ -19,7 +19,7 @@ class App:
             duration = time.monotonic() - start
 
             total_duration += duration
-            sleep = duration - self.update_frequency
+            sleep = self.update_frequency - duration
 
             if sleep > 0:
                 time.sleep(sleep)
