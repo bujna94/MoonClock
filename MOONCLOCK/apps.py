@@ -35,7 +35,7 @@ class TimeApp(App):
         super().__init__(*args, **kwargs)
         self.timezone = timezone
 
-        URL = 'https://worldtimeapi.org/api/timezone/' + self.timezone
+        URL = 'http://worldtimeapi.org/api/timezone/' + self.timezone
 
         try:
             response = self.requests.get(URL)
