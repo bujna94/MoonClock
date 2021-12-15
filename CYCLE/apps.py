@@ -17,12 +17,12 @@ class App:
             self.update()
             duration = time.monotonic() - start
 
-            total_duration += duration
             sleep = self.update_frequency - duration
 
             if sleep > 0:
                 time.sleep(sleep)
 
+            total_duration += time.monotonic() - start
             if total_duration >= self.duration:
                 break
 
@@ -41,7 +41,7 @@ class TimeApp(App):
         try:
             response = self.requests.get(URL)
         except:
-            print('Something went wrong')
+            print('Cannot get current time from {}'.format(URL))
             return
 
         datetime = response.json()['datetime']
@@ -78,7 +78,7 @@ class CryptoApp(App):
         try:
             response = self.requests.get(URL)
         except:
-            print('Something went wrong')
+            print('Cannot get crypto price from {}'.format(URL))
             return
 
         price = response.json()[self.crypto][self.base_currency]

@@ -58,21 +58,21 @@ requests = adafruit_requests.Session(pool, ssl.create_default_context())
 
 
 def main():
+    apps = []
+
+    # Initialize all apps
+    for app_conf in conf['apps']:
+        name = app_conf.pop('name')
+
+        if name == 'time':
+            apps.append(TimeApp(displays, requests, **app_conf))
+        elif name == 'crypto':
+            apps.append(CryptoApp(displays, requests, **app_conf))
+        else:
+            raise ValueError('Unknown app {}'.format(name))
+
+    # Run apps
     while True:
-        apps = []
-
-        # Initialize all apps
-        for app_conf in conf['apps']:
-            name = app_conf.pop('name')
-
-            if name == 'time':
-                apps.append(TimeApp(displays, requests, **app_conf))
-            elif name == 'crypto':
-                apps.append(CryptoApp(displays, requests, **app_conf))
-            else:
-                raise ValueError('Unknown app {}'.format(name))
-
-        # Run apps
         for app in apps:
             app.run()
 

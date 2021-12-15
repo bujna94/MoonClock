@@ -22,7 +22,7 @@ conf = {
         'duration': 60
     }, {
         'name': 'time',
-        'timezone': 'bitcoin',
+        'timezone': 'Europe/Prague',
         'duration': 300,
         'update_frequency': 30,
     }],
