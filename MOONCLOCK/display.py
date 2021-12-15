@@ -26,6 +26,9 @@ def str_rjust(string, length, char=' '):
 
 class BetterSSD1306_I2C(adafruit_ssd1306.SSD1306_I2C):
 
+    def render_character(self, character, x_offset=0):
+        self.render_symbol(get_symbol_for_character(character), x_offset=x_offset)
+
     def render_symbol(self, symbol, x_offset=0):
         size = symbol[0]
 
@@ -63,9 +66,9 @@ class DisplayGroup:
 
             display = self.displays[i // 2]
             if i % 2 == 0:
-                display.render_symbol(get_symbol_for_character(character), self.FIRST_CHARACTER_X_OFFSET)
+                display.render_character(character, self.FIRST_CHARACTER_X_OFFSET)
             else:
-                display.render_symbol(get_symbol_for_character(character), self.SECOND_CHARACTER_X_OFFSET)
+                display.render_character(character, self.SECOND_CHARACTER_X_OFFSET)
 
     def show(self):
         for display in self.displays:

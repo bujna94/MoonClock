@@ -8,13 +8,13 @@ class App:
         self.displays = displays
         self.requests = requests
         self.duration = duration
-        self.update_frequency = update_frequency if update_frequency else self.duration
+        self.update_frequency = update_frequency if update_frequency is not None else self.duration
 
     def run(self):
         total_duration = 0
         while True:
             start = time.monotonic()
-            self.update()
+            self.update(first=(total_duration == 0))
             duration = time.monotonic() - start
 
             sleep = self.update_frequency - duration
@@ -26,7 +26,7 @@ class App:
             if total_duration >= self.duration:
                 break
 
-    def update(self):
+    def update(self, first):
         raise NotImplementedError('You have to implement `run` method')
 
 
@@ -35,7 +35,6 @@ class TimeApp(App):
         super().__init__(*args, **kwargs)
         self.timezone = timezone
 
-    def update(self):
         URL = 'http://worldtimeapi.org/api/timezone/' + self.timezone
 
         try:
@@ -44,13 +43,46 @@ class TimeApp(App):
             print('Cannot get current time from {}'.format(URL))
             return
 
-        datetime = response.json()['datetime']
+        self.unixtime = response.json()['unixtime']
+        self.start = time.monotonic()
+        self._last_hours = None
+        self._last_minutes = None
+        self._last_seconds = None
 
-        string = datetime[11:13] + ': ' + datetime[14:16]
+    def update(self, first):
+        loop_start = time.monotonic()
+        delta = time.monotonic() - self.start
+        current_timestamp = self.unixtime + int(delta)
 
-        self.displays.clear()
+        hours = int(current_timestamp % 86400 // 60 // 60)
+        minutes = int((current_timestamp % 86400 // 60) % 60)
+        seconds = int(current_timestamp % 60)
+
+        string = '{}  {}  {}'.format(
+            str_rjust(str(hours), 2, '0'), str_rjust(str(minutes), 2, '0'), str_rjust(str(seconds), 2, '0'))
+
+        if first:
+            self.displays.clear()
+            self.displays.displays[1].render_character(':')
+            self.displays.displays[3].render_character(':')
+            self.displays.show()
+
         self.displays.render_string(string, center=True)
-        self.displays.show()
+
+        if self._last_hours != hours:
+            self.displays.displays[0].show()
+        if self._last_minutes != minutes:
+            self.displays.displays[2].show()
+        if self._last_seconds != seconds:
+            self.displays.displays[4].show()
+        sleep = 1 - (time.monotonic() - loop_start)
+
+        if sleep > 0:
+            time.sleep(sleep)
+
+        self._last_hours = hours
+        self._last_minutes = minutes
+        self._last_seconds = seconds
 
 
 class CryptoApp(App):
@@ -73,7 +105,7 @@ class CryptoApp(App):
         self.base_currency = base_currency
         self.crypto = crypto
 
-    def update(self):
+    def update(self, first):
         URL = 'https://api.coingecko.com/api/v3/simple/price?ids=' + self.crypto + '&vs_currencies=' + self.base_currency
         try:
             response = self.requests.get(URL)

@@ -11,6 +11,6 @@ conf = {
         'name': 'time',
         'timezone': 'Europe/Prague',
         'duration': 600,
-        'update_frequency': 30,
+        'update_frequency': 0,
     }],
 }
