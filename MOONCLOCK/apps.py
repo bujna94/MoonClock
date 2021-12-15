@@ -27,7 +27,7 @@ class App:
                 break
 
     def update(self, first):
-        raise NotImplementedError('You have to implement `run` method')
+        raise NotImplementedError('You have to implement `update` method')
 
 
 class TimeApp(App):
