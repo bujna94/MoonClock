@@ -35,7 +35,7 @@ class TimeApp(App):
         super().__init__(*args, **kwargs)
         self.timezone = timezone
 
-        URL = 'http://worldtimeapi.org/api/timezone/' + self.timezone
+        URL = 'https://worldtimeapi.org/api/timezone/' + self.timezone
 
         try:
             response = self.requests.get(URL)
@@ -43,7 +43,8 @@ class TimeApp(App):
             print('Cannot get current time from {}'.format(URL))
             return
 
-        self.unixtime = response.json()['unixtime']
+        data = response.json()
+        self.unixtime = data['unixtime'] + data['raw_offset']
         self.start = time.monotonic()
         self._last_hours = None
         self._last_minutes = None
