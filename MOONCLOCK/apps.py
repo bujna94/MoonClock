@@ -72,6 +72,10 @@ class TimeApp(App):
                 str_rjust(str(hours), 2, '0'), str_rjust(str(minutes), 2, '0'))
 
         if first:
+            self._last_hours = None
+            self._last_minutes = None
+            self._last_seconds = None
+
             self.displays.clear()
 
             if self.show_seconds:
