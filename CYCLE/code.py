@@ -34,13 +34,11 @@ SCL = board.IO11
 i2c = busio.I2C(SCL, SDA)
 
 if i2c.try_lock():
-    print('i2c.scan(): ' + str(i2c.scan()))
+    print('i2c.scan():' + str(i2c.scan()))
     i2c.unlock()
 
 tca = adafruit_tca9548a.TCA9548A(i2c)
 displays = DisplayGroup([BetterSSD1306_I2C(WIDTH, HEIGHT, tca[i]) for i in range(5)])
-
-print('ESP32-S2 WebClient Test')
 
 print('My MAC addr:', [hex(i) for i in wifi.radio.mac_address])
 
@@ -55,34 +53,29 @@ wifi.radio.connect(secrets['ssid'], secrets['password'])
 print('Connected to %s!' % secrets['ssid'])
 print('My IP address is', wifi.radio.ipv4_address)
 
-ipv4 = ipaddress.ip_address('8.8.4.4')
-try:
-    print('Ping google.com: %f ms' % (wifi.radio.ping(ipv4) * 1000))
-except:
-    print('Cannot ping google.com')
-
 pool = socketpool.SocketPool(wifi.radio)
 requests = adafruit_requests.Session(pool, ssl.create_default_context())
 
 
-# main cycle of cryptocurrencies
-while True:
-    apps = []
+def main():
+    while True:
+        apps = []
 
-    # Initialize all apps
-    for dictionary in conf:
-        name = str(dictionary['name'])
-        value = str(dictionary['value'])
-        decimal = dictionary['remove_decimal']
-        prefix = str(dictionary['prefix'])
-        postfix = str(dictionary['postfix'])
-        sleep_time = dictionary['sleep_time']
+        # Initialize all apps
+        for app_conf in conf['apps']:
+            name = app_conf.pop('name')
 
-        if name == 'time':
-            apps.append(TimeApp(value, requests, displays, duration=sleep_time, update_frequency=30))
-        else:
-            apps.append(CryptoApp(value, name, requests, displays, duration=sleep_time))
+            if name == 'time':
+                apps.append(TimeApp(displays, requests, **app_conf))
+            elif name == 'crypto':
+                apps.append(CryptoApp(displays, requests, **app_conf))
+            else:
+                raise ValueError('Unknown app {}'.format(name))
 
-    # Run apps
-    for app in apps:
-        app.run()
+        # Run apps
+        for app in apps:
+            app.run()
+
+
+if __name__ == '__main__':
+    main()

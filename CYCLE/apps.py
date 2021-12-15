@@ -1,13 +1,12 @@
 import time
 
-
 from display import str_rjust
 
 
 class App:
-    def __init__(self, requests, displays, duration=60, update_frequency=None):
-        self.requests = requests
+    def __init__(self, displays, requests, duration=60, update_frequency=None):
         self.displays = displays
+        self.requests = requests
         self.duration = duration
         self.update_frequency = update_frequency if update_frequency else self.duration
 
@@ -32,7 +31,7 @@ class App:
 
 
 class TimeApp(App):
-    def __init__(self, timezone='Europe/Prague', *args, **kwargs):
+    def __init__(self, *args, timezone='Europe/Prague', **kwargs):
         super().__init__(*args, **kwargs)
         self.timezone = timezone
 
@@ -55,31 +54,46 @@ class TimeApp(App):
 
 
 class CryptoApp(App):
-    def __init__(self, base='usd', crypto='bitcoin', *args, **kwargs):
+    CRYPTO_CHARACTER_MAP = {
+        'bitcoin': 'B',
+        'ethereum': 'E',
+        'litecoin': 'L',
+        'dogecoin': 'D',
+        'cardano': 'A',
+        'polkadot': 'P',
+    }
+
+    BASE_CURRENCY_CHARACTER_MAP = {
+        'usd': '$',
+        'eur': '€',
+    }
+
+    def __init__(self, *args, base_currency='usd', crypto='bitcoin', **kwargs):
         super().__init__(*args, **kwargs)
-        self.base = base
+        self.base_currency = base_currency
         self.crypto = crypto
 
     def update(self):
-        URL = 'https://api.coingecko.com/api/v3/simple/price?ids=' + self.crypto + '&vs_currencies=' + self.base
+        URL = 'https://api.coingecko.com/api/v3/simple/price?ids=' + self.crypto + '&vs_currencies=' + self.base_currency
         try:
             response = self.requests.get(URL)
         except:
             print('Something went wrong')
             return
 
-        price = response.json()[self.crypto][self.base]
+        price = response.json()[self.crypto][self.base_currency]
 
-        if price >= 100:
-            price = int(price)
-
-        str_price = str(price)
+        str_price = str(int(price) if price > 100 else price)
 
         print('This is ' + self.crypto + ' price: ' + str_price)
 
         self.displays.clear()
         self.displays.render_string(
-            '{0}{1}{2}'.format('$', str_rjust(str_price, 7), 'B '),
+            '{0}{1}{2}'.format(
+                self.BASE_CURRENCY_CHARACTER_MAP.get(self.base_currency, ' '),
+                str_rjust(str_price, 7),
+                self.CRYPTO_CHARACTER_MAP.get(self.crypto, ' ') + ' '
+            ),
             center=True, empty_as_transparent=True
         )
         self.displays.show()
