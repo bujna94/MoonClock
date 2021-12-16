@@ -23,6 +23,14 @@ def str_rjust(string, length, char=' '):
 
     return string
 
+def str_cjust (string, length, char=' '):
+    while len(string) < length:
+        string = char + string
+        if len(string) < length - 1:
+            string = string + char
+
+    return string
+
 
 class BetterSSD1306_I2C(adafruit_ssd1306.SSD1306_I2C):
 

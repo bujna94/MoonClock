@@ -1,6 +1,7 @@
 import time
 
 from display import str_rjust
+from display import str_cjust
 
 
 class App:
@@ -149,7 +150,7 @@ class CryptoApp(App):
         self.displays.render_string(
             '{0}{1}{2}'.format(
                 self.BASE_CURRENCY_CHARACTER_MAP.get(self.base_currency, ' '),
-                str_rjust(str_price, 7),
+                str_cjust(str_price, 7),
                 self.CRYPTO_CHARACTER_MAP.get(self.crypto, ' ') + ' '
             ),
             center=True, empty_as_transparent=True
