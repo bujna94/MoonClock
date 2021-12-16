@@ -4,8 +4,8 @@ from display import str_rjust
 
 
 class App:
-    def __init__(self, displays, requests, duration=60, update_frequency=None):
-        self.displays = displays
+    def __init__(self, display_group, requests, duration=60, update_frequency=None):
+        self.display_group = display_group
         self.requests = requests
         self.duration = duration
         self.update_frequency = update_frequency if update_frequency is not None else self.duration
@@ -78,29 +78,29 @@ class TimeApp(App):
             self._last_minutes = None
             self._last_seconds = None
 
-            self.displays.clear()
+            self.display_group.clear()
 
             if self.show_seconds:
-                self.displays.displays[1].render_character(':')
-                self.displays.displays[3].render_character(':')
+                self.display_group.displays[1].render_character(':')
+                self.display_group.displays[3].render_character(':')
             else:
-                self.displays.displays[2].render_character(':')
-            self.displays.show()
+                self.display_group.displays[2].render_character(':')
+            self.display_group.show()
 
-        self.displays.render_string(string, center=True)
+        self.display_group.render_string(string, center=True)
 
         if self.show_seconds:
             if self._last_hours != hours:
-                self.displays.displays[0].show()
+                self.display_group.displays[0].show()
             if self._last_minutes != minutes:
-                self.displays.displays[2].show()
+                self.display_group.displays[2].show()
             if self._last_seconds != seconds:
-                self.displays.displays[4].show()
+                self.display_group.displays[4].show()
         else:
             if self._last_hours != hours:
-                self.displays.displays[1].show()
+                self.display_group.displays[1].show()
             if self._last_minutes != minutes:
-                self.displays.displays[3].show()
+                self.display_group.displays[3].show()
         sleep = 1 - (time.monotonic() - loop_start)
 
         if sleep > 0:
@@ -145,8 +145,8 @@ class CryptoApp(App):
 
         print('This is ' + self.crypto + ' price: ' + str_price)
 
-        self.displays.clear()
-        self.displays.render_string(
+        self.display_group.clear()
+        self.display_group.render_string(
             '{0}{1}{2}'.format(
                 self.BASE_CURRENCY_CHARACTER_MAP.get(self.base_currency, ' '),
                 str_rjust(str_price, 7),
@@ -154,4 +154,4 @@ class CryptoApp(App):
             ),
             center=True, empty_as_transparent=True
         )
-        self.displays.show()
+        self.display_group.show()

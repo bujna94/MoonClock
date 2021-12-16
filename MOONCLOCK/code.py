@@ -9,7 +9,7 @@ import socketpool
 import wifi
 
 from apps import *
-from display import BetterSSD1306_I2C, DisplayGroup, str_rjust
+from display import BetterSSD1306_I2C, DisplayGroup
 
 # Get wifi details and more from a secrets.py file
 try:
@@ -38,7 +38,7 @@ if i2c.try_lock():
     i2c.unlock()
 
 tca = adafruit_tca9548a.TCA9548A(i2c)
-displays = DisplayGroup([BetterSSD1306_I2C(WIDTH, HEIGHT, tca[i]) for i in range(5)])
+display_group = DisplayGroup([BetterSSD1306_I2C(WIDTH, HEIGHT, tca[i]) for i in range(5)])
 
 print('My MAC addr:', [hex(i) for i in wifi.radio.mac_address])
 
@@ -65,9 +65,9 @@ def main():
         name = app_conf.pop('name')
 
         if name == 'time':
-            apps.append(TimeApp(displays, requests, **app_conf))
+            apps.append(TimeApp(display_group, requests, **app_conf))
         elif name == 'crypto':
-            apps.append(CryptoApp(displays, requests, **app_conf))
+            apps.append(CryptoApp(display_group, requests, **app_conf))
         else:
             raise ValueError('Unknown app {}'.format(name))
 
