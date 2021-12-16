@@ -68,6 +68,8 @@ def main():
             apps.append(TimeApp(display_group, requests, **app_conf))
         elif name == 'crypto':
             apps.append(CryptoApp(display_group, requests, **app_conf))
+        elif name == 'auto_contrast':
+            apps.append(AutoContrastApp(display_group, requests, **app_conf))
         else:
             raise ValueError('Unknown app {}'.format(name))
 
