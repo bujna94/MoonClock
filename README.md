@@ -25,6 +25,6 @@ We all love Bitcoin, sure, but maybe you want to see the current price in anothe
 
 2. Remove all files & folders from the "MOONCLOCK" drive.
 
-3. Configure your cryptocurrencies in conf.py and copy the content of the CYCLE folder to the "MOONCLOCK" USB drive. (Don't forget to change your WiFi details again in the "secrets.py" file if you have to)
+3. Configure your cryptocurrencies in conf.py and copy the content of the MOONCLOCK folder to the "MOONCLOCK" USB drive. (Don't forget to change your WiFi details again in the "secrets.py" file if you have to)
 
 Wait ~2 minutes until new crypto will be shown on MoonClock.
