@@ -2,6 +2,6 @@
 # If you put them in the code you risk committing that info or sharing it
 
 secrets = {
-    'ssid' : 'WIFI_SSID',
-    'password' : 'WIFI_PASSWORD',
+    'ssid': 'WIFI_SSID',
+    'password': 'WIFI_PASSWORD',
 }

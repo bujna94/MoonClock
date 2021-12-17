@@ -1,4 +1,3 @@
-import ipaddress
 import ssl
 
 import adafruit_requests
@@ -56,6 +55,12 @@ print('My IP address is', wifi.radio.ipv4_address)
 pool = socketpool.SocketPool(wifi.radio)
 requests = adafruit_requests.Session(pool, ssl.create_default_context())
 
+APPS = {
+    'auto_contrast': AutoContrastApp,
+    'crypto': CryptoApp,
+    'time': TimeApp,
+}
+
 
 def main():
     apps = []
@@ -64,19 +69,21 @@ def main():
     for app_conf in conf['apps']:
         name = app_conf.pop('name')
 
-        if name == 'time':
-            apps.append(TimeApp(display_group, requests, **app_conf))
-        elif name == 'crypto':
-            apps.append(CryptoApp(display_group, requests, **app_conf))
-        elif name == 'auto_contrast':
-            apps.append(AutoContrastApp(display_group, requests, **app_conf))
-        else:
+        try:
+            apps.append(APPS[name](display_group, requests, **app_conf))
+        except KeyError:
             raise ValueError('Unknown app {}'.format(name))
+        except:
+            print('Initialization of application {} has failed'.format(APPS[name].__name__))
 
     # Run apps
     while True:
         for app in apps:
-            app.run()
+            try:
+                app.run()
+            except Exception as e:
+                print('Application {} has crashed'.format(app.__class__.__name__))
+                print(e)
 
 
 if __name__ == '__main__':

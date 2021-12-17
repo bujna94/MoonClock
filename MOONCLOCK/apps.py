@@ -1,28 +1,7 @@
 import time
 
 from adafruit_datetime import datetime
-from display import str_rjust
-
-
-def get_current_datetime(requests, timezone):
-    URL = 'http://worldtimeapi.org/api/timezone/' + timezone
-
-    try:
-        response = requests.get(URL)
-    except:
-        print('Cannot get current time from {}'.format(URL))
-        return
-
-    data = response.json()
-
-    return datetime.fromisoformat(data['datetime'])
-
-
-def timestamp_to_time(timestamp):
-    hours = int(timestamp % 86400 // 60 // 60)
-    minutes = int((timestamp % 86400 // 60) % 60)
-    seconds = int(timestamp % 60)
-    return hours, minutes, seconds
+from utils import get_current_datetime, timestamp_to_time, str_rjust
 
 
 class App:
@@ -145,16 +124,10 @@ class CryptoApp(App):
         self.crypto = crypto
 
     def update(self, first):
-        URL = 'https://api.coingecko.com/api/v3/simple/price?ids=' + self.crypto + '&vs_currencies=' + self.base_currency
-        try:
-            response = self.requests.get(URL)
-        except:
-            print('Cannot get crypto price from {}'.format(URL))
-            return
+        URL = 'https://api.coingecko.com/api/v3/simple/price?ids={}&vs_currencies={}'.format(self.crypto, self.base_currency)
 
-        price = response.json()[self.crypto][self.base_currency]
-
-        str_price = str(int(price) if price > 100 else price)
+        price = self.requests.get(URL).json()[self.crypto][self.base_currency]
+        str_price = str(int(price) if price > 100 else price)[:7]
 
         print('This is ' + self.crypto + ' price: ' + str_price)
 
@@ -183,26 +156,18 @@ class AutoContrastApp(App):
         self.timezone = 'Etc/UTC'
 
     def update(self, first):
-        URL = 'https://api.sunrise-sunset.org/json?lat={}&lng={}&date=today&formatted=0'.format(
+        url = 'https://api.sunrise-sunset.org/json?lat={}&lng={}&date=today&formatted=0'.format(
             self.latitude, self.longitude)
 
-        try:
-            response = self.requests.get(URL)
-        except:
-            return
-        data = response.json()['results']
+        data = self.requests.get(url).json()['results']
 
-        # sr - sunrise
-        # ss - sunset
-        # c - current
+        sunrise_datetime = datetime.fromisoformat(data['sunrise'])
+        sunset_datetime = datetime.fromisoformat(data['sunset'])
+        current_datetime = get_current_datetime(self.requests, self.timezone)
 
-        sr_datetime = datetime.fromisoformat(data['sunrise'])
-        ss_datetime = datetime.fromisoformat(data['sunset'])
-        c_datetime = get_current_datetime(self.requests, self.timezone)
-
-        if ss_datetime <= c_datetime:
+        if sunset_datetime <= current_datetime:
             self.display_group.contrast(self.contrast_after_sunset)
-            print('updating contrast after sunset')
-        elif sr_datetime <= c_datetime:
+            print('changing contrast after sunset')
+        elif sunrise_datetime <= current_datetime:
             self.display_group.contrast(self.contrast_after_sunrise)
-            print('updating contrast after sunrise')
+            print('changing contrast after sunrise')
