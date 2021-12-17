@@ -1,3 +1,4 @@
+import font
 import time
 
 from adafruit_datetime import datetime
@@ -105,18 +106,19 @@ class TimeApp(App):
 
 class CryptoApp(App):
     CRYPTO_CHARACTER_MAP = {
-        'bitcoin': 'B',
-        'ethereum': 'E',
-        'litecoin': 'L',
-        'dogecoin': 'D',
-        'cardano': 'A',
-        'polkadot': 'P',
-        'algorand': 'G',
+        'cardano': font.CHAR_ADA,
+        'baked-token': font.CHAR_BAKED,
+        'bitcoin': font.CHAR_BTC,
+        'dogecoin': font.CHAR_DOGE,
+        'ethereum': font.CHAR_ETH,
+        'litecoin': font.CHAR_LTC,
+        'polkadot': font.CHAR_POLKADOT,
     }
 
     BASE_CURRENCY_CHARACTER_MAP = {
         'usd': '$',
         'eur': '€',
+        'gbp': '£',
     }
 
     def __init__(self, *args, base_currency='usd', crypto='bitcoin', **kwargs):
