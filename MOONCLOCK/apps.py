@@ -1,18 +1,10 @@
-import re
 import time
 
+from adafruit_datetime import datetime
 from display import str_rjust
 
-ISO8601_REGEX = re.compile(r'^(\d+)-(\d+)-(\d+)T(\d+):(\d+):(\d+(\.\d+)?)(\+(\d+:\d+))?$')
 
-
-def parse_iso8601(iso8601_string):
-    g = ISO8601_REGEX.match(iso8601_string).groups()
-
-    return int(g[0]), int(g[1]), int(g[2]), int(g[3]), int(g[4]), float(g[5]), g[8]
-
-
-def get_current_time_data(requests, timezone):
+def get_current_datetime(requests, timezone):
     URL = 'http://worldtimeapi.org/api/timezone/' + timezone
 
     try:
@@ -23,7 +15,7 @@ def get_current_time_data(requests, timezone):
 
     data = response.json()
 
-    return data
+    return datetime.fromisoformat(data['datetime'])
 
 
 def timestamp_to_time(timestamp):
@@ -66,9 +58,9 @@ class TimeApp(App):
         self.timezone = timezone
         self.show_seconds = show_seconds
 
-        time_data = get_current_time_data(self.requests, timezone)
+        datetime = get_current_datetime(self.requests, timezone)
 
-        self.unixtime = time_data['unixtime'] + time_data['raw_offset']
+        self.unixtime = datetime.timestamp() + datetime.utcoffset().seconds
         self.start = time.monotonic()
         self._last_hours = None
         self._last_minutes = None
@@ -204,16 +196,13 @@ class AutoContrastApp(App):
         # ss - sunset
         # c - current
 
-        sr_year, sr_month, sr_day, sr_hour, sr_min, sr_second, *_ = parse_iso8601(data['sunrise'])
-        ss_year, ss_month, ss_day, ss_hour, ss_min, ss_second, *_ = parse_iso8601(data['sunset'])
-        c_year, c_month, c_day, c_hour, c_min, c_second, *_ = parse_iso8601(
-            get_current_time_data(self.requests, self.timezone)['datetime'])
+        sr_datetime = datetime.fromisoformat(data['sunrise'])
+        ss_datetime = datetime.fromisoformat(data['sunset'])
+        c_datetime = get_current_datetime(self.requests, self.timezone)
 
-        if sr_year <= c_year and sr_month <= c_month and sr_day <= c_day and sr_hour <= c_hour and sr_min <= c_min \
-                and sr_second <= c_second:
-            self.display_group.contrast(self.contrast_after_sunrise)
-            print('updating contrast after sunrise')
-        elif ss_year <= c_year and ss_month <= c_month and ss_day <= c_day and ss_hour <= c_hour and ss_min <= c_min \
-                and ss_second <= c_second:
+        if ss_datetime <= c_datetime:
             self.display_group.contrast(self.contrast_after_sunset)
             print('updating contrast after sunset')
+        elif sr_datetime <= c_datetime:
+            self.display_group.contrast(self.contrast_after_sunrise)
+            print('updating contrast after sunrise')
