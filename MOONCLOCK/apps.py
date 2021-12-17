@@ -74,10 +74,10 @@ class TimeApp(App):
             self.display_group.clear()
 
             if self.show_seconds:
-                self.display_group.displays[1].render_character(':')
-                self.display_group.displays[3].render_character(':')
+                self.display_group.displays[1].render_character(font.CHAR_HUGECOLON)
+                self.display_group.displays[3].render_character(font.CHAR_HUGECOLON)
             else:
-                self.display_group.displays[2].render_character(':')
+                self.display_group.displays[2].render_character(font.CHAR_HUGECOLON)
             self.display_group.show()
 
         self.display_group.render_string(string, center=True)
@@ -138,7 +138,7 @@ class CryptoApp(App):
         self.display_group.render_string(
             '{0}{1}{2}'.format(
                 self.BASE_CURRENCY_CHARACTER_MAP.get(self.base_currency, ' '),
-                str_rjust(str_price, 7),
+                str_rjust(str_price, 7).replace('.', font.CHAR_LARGEDOT),
                 self.CRYPTO_CHARACTER_MAP.get(self.crypto, ' ') + ' '
             ),
             center=True, empty_as_transparent=True
