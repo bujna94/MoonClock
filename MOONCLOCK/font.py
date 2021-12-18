@@ -12,7 +12,7 @@ SYMBOL_MAP = {
     '8': symbols.EIGHT,
     '9': symbols.NINE,
     '.': symbols.DOT,
-    '$': symbols.DOLLARLARGE,
+    '$': symbols.LARGEDOLLAR,
     '€': symbols.EURO,
     ':': symbols.LARGECOLON,
     'B': symbols.BTC,
