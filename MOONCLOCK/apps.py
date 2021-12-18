@@ -111,6 +111,7 @@ class CryptoApp(App):
         'dogecoin': 'D',
         'cardano': 'A',
         'polkadot': 'P',
+        'algorand': 'G',
     }
 
     BASE_CURRENCY_CHARACTER_MAP = {

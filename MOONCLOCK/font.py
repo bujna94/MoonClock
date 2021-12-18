@@ -21,6 +21,7 @@ SYMBOL_MAP = {
     'D': symbols.DOGE,
     'A': symbols.ADA,
     'P': symbols.POLKADOT,
+    'G': symbols.ALGORAND,
 }
 
 
