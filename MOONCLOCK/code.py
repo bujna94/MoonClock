@@ -45,7 +45,7 @@ while True:
     try:
         print('Available WiFi networks:')
         for network in wifi.radio.start_scanning_networks():
-            print('\t}^\t\tRSSI: {}\tChannel: {}}'.format(str(network.ssid, 'utf-8'), network.rssi, network.channel))
+            print('\t{}\t\tRSSI: {}\tChannel: {}'.format(str(network.ssid, 'utf-8'), network.rssi, network.channel))
         wifi.radio.stop_scanning_networks()
         print('Connecting to {}'.format(secrets['ssid']))
         wifi.radio.connect(secrets['ssid'], secrets['password'])
