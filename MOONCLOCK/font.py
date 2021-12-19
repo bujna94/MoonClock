@@ -49,6 +49,6 @@ SYMBOLS_MAP = {
 def get_symbol_for_character(character):
 
     try:
-        return SYMBOLS_MAP[character]
+        return SYMBOLS_MAP[ord(character)]
     except KeyError:
         return symbols.EMPTY
