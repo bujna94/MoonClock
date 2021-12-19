@@ -24,8 +24,8 @@ class BetterSSD1306_I2C(adafruit_ssd1306.SSD1306_I2C):
 
 class DisplayGroup:
 
-    FIRST_CHARACTER_X_OFFSET = -5
-    SECOND_CHARACTER_X_OFFSET = 75
+    FIRST_CHARACTER_X_OFFSET = 0
+    SECOND_CHARACTER_X_OFFSET = 79
 
     def __init__(self, displays):
         self.displays = displays

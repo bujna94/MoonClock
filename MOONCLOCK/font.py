@@ -8,10 +8,7 @@ CHAR_DOGE = '\ue003'
 CHAR_ETH = '\ue004'
 CHAR_LTC = '\ue005'
 CHAR_POLKADOT = '\ue006'
-CHAR_LARGECOLON = '\ue007'
-CHAR_HUGECOLON = '\ue008'
-CHAR_LARGEDOT = '\ue009'
-CHAR_HUGEDOT = '\ue00a'
+CHAR_WIDECOLON = '\ue007'
 
 SYMBOLS_MAP = {
     ord('0'): symbols.ZERO,
@@ -39,16 +36,13 @@ SYMBOLS_MAP = {
     ord(CHAR_ETH): symbols.ETH,
     ord(CHAR_LTC): symbols.LTC,
     ord(CHAR_POLKADOT): symbols.POLKADOT,
-    ord(CHAR_LARGECOLON): symbols.LARGECOLON,
-    ord(CHAR_HUGECOLON): symbols.HUGECOLON,
-    ord(CHAR_LARGEDOT): symbols.LARGEDOT,
-    ord(CHAR_HUGEDOT): symbols.HUGEDOT,
+    ord(CHAR_WIDECOLON): symbols.WIDECOLON,
 }
 
 
 def get_symbol_for_character(character):
 
     try:
-        return SYMBOLS_MAP[character]
+        return SYMBOLS_MAP[ord(character)]
     except KeyError:
         return symbols.EMPTY
