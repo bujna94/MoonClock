@@ -41,16 +41,20 @@ display_group = DisplayGroup([BetterSSD1306_I2C(WIDTH, HEIGHT, tca[i]) for i in 
 
 print('My MAC addr:', [hex(i) for i in wifi.radio.mac_address])
 
-print('Available WiFi networks:')
-for network in wifi.radio.start_scanning_networks():
-    print('\t%s\t\tRSSI: %d\tChannel: %d' % (str(network.ssid, 'utf-8'),
-                                             network.rssi, network.channel))
-wifi.radio.stop_scanning_networks()
-
-print('Connecting to %s' % secrets['ssid'])
-wifi.radio.connect(secrets['ssid'], secrets['password'])
-print('Connected to %s!' % secrets['ssid'])
-print('My IP address is', wifi.radio.ipv4_address)
+while True:
+    try:
+        print('Available WiFi networks:')
+        for network in wifi.radio.start_scanning_networks():
+            print('\t}^\t\tRSSI: {}\tChannel: {}}'.format(str(network.ssid, 'utf-8'), network.rssi, network.channel))
+        wifi.radio.stop_scanning_networks()
+        print('Connecting to {}'.format(secrets['ssid']))
+        wifi.radio.connect(secrets['ssid'], secrets['password'])
+        print('Connected to {}!'.format(secrets['ssid']))
+        print('My IP address is', wifi.radio.ipv4_address)
+    except ConnectionError:
+        print('Connection to {} has failed. Retrying....')
+    else:
+        break
 
 pool = socketpool.SocketPool(wifi.radio)
 requests = adafruit_requests.Session(pool, ssl.create_default_context())
