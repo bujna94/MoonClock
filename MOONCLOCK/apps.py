@@ -13,22 +13,22 @@ class App:
         self.update_frequency = update_frequency if update_frequency is not None else self.duration
 
     def run(self):
-        total_duration = 0
+        used_duration = 0
         while True:
             start = time.monotonic()
-            self.update(first=(total_duration == 0))
-            duration = time.monotonic() - start
+            self.update(first=(used_duration == 0), remaining_duration=self.duration - used_duration)
+            update_duration = time.monotonic() - start
 
-            sleep = self.update_frequency - duration
+            sleep = self.update_frequency - update_duration
 
             if sleep > 0:
                 time.sleep(sleep)
 
-            total_duration += time.monotonic() - start
-            if total_duration >= self.duration:
+            used_duration += time.monotonic() - start
+            if used_duration >= self.duration:
                 break
 
-    def update(self, first):
+    def update(self, first, remaining_duration):
         raise NotImplementedError('You have to implement `update` method')
 
 
@@ -46,15 +46,22 @@ class TimeApp(App):
         self._last_minutes = None
         self._last_seconds = None
 
-    def update(self, first):
+    def update(self, first, remaining_duration):
         loop_start = time.monotonic()
         delta = time.monotonic() - self.start
         current_timestamp = self.unixtime + int(delta)
 
         hours, minutes, seconds = timestamp_to_time(current_timestamp)
 
+        if first:
+            self._last_hours = None
+            self._last_minutes = None
+            self._last_seconds = None
+
         if not self.show_seconds and hours == self._last_hours and minutes == self._last_minutes:
-            time.sleep(60 - seconds)  # Wait for the next minute
+            sleep = 60 - seconds
+            sleep = remaining_duration if sleep > remaining_duration else sleep
+            time.sleep(sleep)  # Wait for the next minute
             return
 
         if self.show_seconds:
@@ -67,10 +74,6 @@ class TimeApp(App):
         print('This is current time: {}:{}:{}'.format(hours, minutes, seconds))
 
         if first:
-            self._last_hours = None
-            self._last_minutes = None
-            self._last_seconds = None
-
             self.display_group.clear()
 
             if self.show_seconds:
@@ -126,7 +129,7 @@ class CryptoApp(App):
         self.base_currency = base_currency
         self.crypto = crypto
 
-    def update(self, first):
+    def update(self, first, remaining_duration):
         URL = 'https://api.coingecko.com/api/v3/simple/price?ids={}&vs_currencies={}'.format(self.crypto, self.base_currency)
 
         price = self.requests.get(URL).json()[self.crypto][self.base_currency]
@@ -158,7 +161,7 @@ class AutoContrastApp(App):
         self.contrast_after_sunset = contrast_after_sunset
         self.timezone = 'Etc/UTC'
 
-    def update(self, first):
+    def update(self, first, remaining_duration):
         url = 'https://api.sunrise-sunset.org/json?lat={}&lng={}&date=today&formatted=0'.format(
             self.latitude, self.longitude)
 
