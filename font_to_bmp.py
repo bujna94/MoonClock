@@ -90,6 +90,7 @@ def detect_real_char_bbox(img):
 
     return x0, y0, x1 + 1, y1 + 1
 
+
 for ch in chars:
     font = None
     img = Image.new('1', SIZE)
