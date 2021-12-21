@@ -31,7 +31,7 @@ HEIGHT = 64
 SDA = board.IO10
 SCL = board.IO11
 
-i2c = busio.I2C(SCL, SDA)
+i2c = busio.I2C(SCL, SDA, frequency=1400000)
 
 if i2c.try_lock():
     print('i2c.scan():' + str(i2c.scan()))
