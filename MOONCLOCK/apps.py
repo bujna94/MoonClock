@@ -137,7 +137,10 @@ class CryptoApp(App):
         URL = 'https://api.coingecko.com/api/v3/simple/price?ids={}&vs_currencies={}'.format(self.crypto, self.base_currency)
 
         price = self.requests.get(URL).json()[self.crypto][self.base_currency]
-        str_price = str(int(price) if price > 100 else price)[:6]
+        str_price = str(int(price) if price > 100 else price)[:7]
+        if (price < 1):
+            str_price = str(round(price, 4))
+
 
         print('This is ' + self.crypto + ' price: ' + str_price)
 
