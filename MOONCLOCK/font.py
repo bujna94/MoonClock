@@ -9,6 +9,7 @@ CHAR_ETH = '\ue004'
 CHAR_LTC = '\ue005'
 CHAR_POLKADOT = '\ue006'
 CHAR_WIDECOLON = '\ue007'
+CHAR_SATOSHI = '\ue008'
 
 SYMBOLS_MAP = {
     ord('0'): symbols.ZERO,
@@ -27,6 +28,20 @@ SYMBOLS_MAP = {
     ord('£'): symbols.GBP,
     ord(':'): symbols.COLON,
     ord(' '): symbols.EMPTY,
+    ord('@'): symbols.AT,
+    ord('°'): symbols.DEGREE,
+    ord('÷'): symbols.DIVIDE,
+    ord('='): symbols.EQUAL,
+    ord('!'): symbols.EXCLAMATION_MARK,
+    ord('#'): symbols.HASH,
+    ord('-'): symbols.MINUS,
+    ord('×'): symbols.MULTIPLY,
+    ord('/'): symbols.OVER,
+    ord('%'): symbols.PERCENT,
+    ord('+'): symbols.PLUS,
+    ord('?'): symbols.QUESTION_MARK,
+    ord('*'): symbols.STAR,
+
 
     # Alphabet
     ord('A'): symbols.A,
@@ -65,6 +80,7 @@ SYMBOLS_MAP = {
     ord(CHAR_LTC): symbols.LTC,
     ord(CHAR_POLKADOT): symbols.POLKADOT,
     ord(CHAR_WIDECOLON): symbols.WIDECOLON,
+    ord(CHAR_SATOSHI): symbols.SATOSHI,
 }
 
 
