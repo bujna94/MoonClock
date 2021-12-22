@@ -1,8 +1,9 @@
+from symbols import COLON
 import font
 import time
 
 from adafruit_datetime import datetime
-from utils import get_current_datetime, timestamp_to_time, str_rjust
+from utils import get_current_datetime, timestamp_to_time, str_rjust, str_cjust, center_string
 
 
 class App:
@@ -116,12 +117,15 @@ class CryptoApp(App):
         'ethereum': font.CHAR_ETH,
         'litecoin': font.CHAR_LTC,
         'polkadot': font.CHAR_POLKADOT,
+        'kusama': font.CHAR_KSM,
     }
 
     BASE_CURRENCY_CHARACTER_MAP = {
         'usd': '$',
         'eur': '€',
-        'gbp': '£',
+        'gbp': '£',  
+        'sats': font.CHAR_WIDESATOSHI,
+        'btc': font.CHAR_BTC,
     }
 
     def __init__(self, *args, base_currency='usd', crypto='bitcoin', **kwargs):
@@ -133,7 +137,7 @@ class CryptoApp(App):
         URL = 'https://api.coingecko.com/api/v3/simple/price?ids={}&vs_currencies={}'.format(self.crypto, self.base_currency)
 
         price = self.requests.get(URL).json()[self.crypto][self.base_currency]
-        str_price = str(int(price) if price > 100 else price)[:7]
+        str_price = str(int(price) if price > 100 else price)[:6]
 
         print('This is ' + self.crypto + ' price: ' + str_price)
 
@@ -141,7 +145,7 @@ class CryptoApp(App):
         self.display_group.render_string(
             '{0}{1}{2}'.format(
                 self.BASE_CURRENCY_CHARACTER_MAP.get(self.base_currency, ' '),
-                str_rjust(str_price, 6),
+                str_cjust(str_price, 7),
                 self.CRYPTO_CHARACTER_MAP.get(self.crypto, ' ') + ' '
             ),
             center=True, empty_as_transparent=True
@@ -177,3 +181,93 @@ class AutoContrastApp(App):
         elif sunrise_datetime <= current_datetime:
             self.display_group.contrast(self.contrast_after_sunrise)
             print('changing contrast after sunrise')
+
+class BlockHeight(App):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+    def update(self, first, remaining_duration):
+        URL = 'https://mempool.space/api/blocks/tip/height'
+
+        height = self.requests.get(URL).content.decode()
+        str_height = str(height)
+
+        print('This is current block height: ' + str_height)
+
+        self.display_group.clear()
+        self.display_group.render_string(
+            font.CHAR_CHAIN + ' ' + str_height + font.CHAR_BTC,
+            center=False, empty_as_transparent=True
+        )
+        self.display_group.show() 
+
+class Halving(App):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+    def update(self, first, remaining_duration):
+        URL = 'https://mempool.space/api/blocks/tip/height'
+
+        height = self.requests.get(URL).content.decode()
+        halving = str(210000 - int(height) % 210000)
+
+        print('Halving in: ' + halving)
+
+        self.display_group.clear()
+        self.display_group.render_string(
+            '{0}{1}'.format(
+                font.CHAR_HALVING + ' ',
+                halving,
+                ),
+            center=False, empty_as_transparent=True
+        )
+        self.display_group.show()  
+
+class Fees(App):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+    def update(self, first, remaining_duration):
+        URL = 'https://mempool.space/api/v1/fees/recommended'
+        fees = self.requests.get(URL).json()
+        fastestFee = str(fees['fastestFee'])
+        hourFee = str(fees['hourFee'])
+        
+        print('Recommended fees: ' + str(fees))
+
+        fee_string = str_cjust(font.CHAR_SATOSHI + str(fastestFee) + ':' + font.CHAR_SATOSHI + str(hourFee), 7)
+        if (len(fastestFee) + len(hourFee) > 5):
+            self.display_group.clear()
+            self.display_group.render_string(
+                '{0}'.format(
+                fee_string,
+                ),
+                center=False, empty_as_transparent=True
+            )
+        else:
+            self.display_group.clear()
+            self.display_group.render_string(
+                '{0}{1}'.format(
+                font.CHAR_MONEY_BAG,
+                ' ' + fee_string,
+                ),
+                center=False, empty_as_transparent=True
+            )
+        self.display_group.show()  
+
+class Text(App):
+    def __init__(self, *args, text='', **kwargs):
+        super().__init__(*args, **kwargs)
+        self.text = text
+
+    def update(self, first, remaining_duration):
+        text = str(self.text)
+        print('Show text: ' + text)
+
+        self.display_group.clear()
+        self.display_group.render_string(
+            text
+            ,center=True, empty_as_transparent=True
+        )
+        self.display_group.show()  
+      

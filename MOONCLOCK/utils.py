@@ -32,3 +32,11 @@ def str_rjust(string, length, char=' '):
         string = char + string
 
     return string
+
+def str_cjust(string, length, char=' '):
+    while len(string) < length:
+        string = char + string
+        if (len(string) < length):
+            string = string + char
+
+    return string

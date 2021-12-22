@@ -10,6 +10,11 @@ CHAR_LTC = '\ue005'
 CHAR_POLKADOT = '\ue006'
 CHAR_WIDECOLON = '\ue007'
 CHAR_SATOSHI = '\ue008'
+CHAR_KSM = '\ue009'
+CHAR_CHAIN = '\ue010'
+CHAR_WIDESATOSHI = '\ue011'
+CHAR_MONEY_BAG = '\ue012'
+CHAR_HALVING = '\ue013'
 
 SYMBOLS_MAP = {
     ord('0'): symbols.ZERO,
@@ -70,6 +75,32 @@ SYMBOLS_MAP = {
     ord('X'): symbols.X,
     ord('Y'): symbols.Y,
     ord('Z'): symbols.Z,
+    ord('a'): symbols.A,
+    ord('b'): symbols.B,
+    ord('c'): symbols.C,
+    ord('d'): symbols.D,
+    ord('e'): symbols.E,
+    ord('f'): symbols.F,
+    ord('g'): symbols.G,
+    ord('h'): symbols.H,
+    ord('i'): symbols.I,
+    ord('j'): symbols.J,
+    ord('k'): symbols.K,
+    ord('l'): symbols.L,
+    ord('m'): symbols.M,
+    ord('n'): symbols.N,
+    ord('o'): symbols.O,
+    ord('p'): symbols.P,
+    ord('q'): symbols.Q,
+    ord('r'): symbols.R,
+    ord('s'): symbols.S,
+    ord('t'): symbols.T,
+    ord('u'): symbols.U,
+    ord('v'): symbols.V,
+    ord('w'): symbols.W,
+    ord('x'): symbols.X,
+    ord('y'): symbols.Y,
+    ord('z'): symbols.Z,
 
     # Crypto logos
     ord(CHAR_ADA): symbols.ADA,
@@ -79,8 +110,13 @@ SYMBOLS_MAP = {
     ord(CHAR_ETH): symbols.ETH,
     ord(CHAR_LTC): symbols.LTC,
     ord(CHAR_POLKADOT): symbols.POLKADOT,
+    ord(CHAR_KSM): symbols.KSM,
     ord(CHAR_WIDECOLON): symbols.WIDECOLON,
     ord(CHAR_SATOSHI): symbols.SATOSHI,
+    ord(CHAR_WIDESATOSHI): symbols.WIDESATOSHI,
+    ord(CHAR_CHAIN): symbols.CHAIN,
+    ord(CHAR_MONEY_BAG): symbols.MONEY_BAG,
+    ord(CHAR_HALVING): symbols.HALVING,
 }
 
 

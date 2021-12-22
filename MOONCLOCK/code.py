@@ -40,7 +40,7 @@ if i2c.try_lock():
 tca = adafruit_tca9548a.TCA9548A(i2c)
 display_group = DisplayGroup([BetterSSD1306_I2C(WIDTH, HEIGHT, tca[i]) for i in range(5)])
 
-print('My MAC addr:', [hex(i) for i in wifi.radio.mac_address])
+#print('My MAC addr:', [hex(i) for i in wifi.radio.mac_address])
 
 while True:
     try:
@@ -64,6 +64,10 @@ APPS = {
     'auto_contrast': AutoContrastApp,
     'crypto': CryptoApp,
     'time': TimeApp,
+    'blockheight': BlockHeight,
+    'halving': Halving,
+    'fees': Fees,
+    'text': Text,
 }
 
 
