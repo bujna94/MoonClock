@@ -1,10 +1,11 @@
 import ssl
+import traceback
+
 import adafruit_requests
 import adafruit_tca9548a
 import board
 import busio
 import socketpool
-import traceback
 import wifi
 
 from apps import *
@@ -40,34 +41,38 @@ tca = adafruit_tca9548a.TCA9548A(i2c)
 display_group = DisplayGroup([BetterSSD1306_I2C(WIDTH, HEIGHT, tca[i]) for i in range(5)])
 
 print('My MAC addr:', [hex(i) for i in wifi.radio.mac_address])
-#try to connect to any wifi from the secrets.py file
-connected=0
+# try to connect to any wifi from the secrets.py file
+connected = False
 wifi_networks_available = wifi.radio.start_scanning_networks()
 print('Available WiFi networks:')
 for network in wifi_networks_available:
     print('\t{}\t\tRSSI: {}\tChannel: {}'.format(str(network.ssid, 'utf-8'), network.rssi, network.channel))
 wifi.radio.stop_scanning_networks()
-while (not connected):
-    for wifi_connection_conf in secrets:
+
+while not connected:
+    fail_count = 0
+    for wifi_conf in secrets:
         try:
-            print('Connecting to {}'.format(wifi_connection_conf['ssid']))
-            display_group.clear()
-            display_group.show() 
-            display_group.render_string('connecting',center=True, empty_as_transparent=True)
-            display_group.show() 
-            display_group.clear()
-            display_group.show() 
-            display_group.render_string('to '+wifi_connection_conf['ssid'],center=True, empty_as_transparent=True)
-            display_group.show() 
-            wifi.radio.connect(wifi_connection_conf['ssid'], wifi_connection_conf['password'])
-            print('Connected to {}!'.format(wifi_connection_conf['ssid']))
+            print('Connecting to {}'.format(wifi_conf['ssid']))
+            display_group.render_string('connecting', center=True)
+            display_group.show()
+            display_group.render_string('to ' + wifi_conf['ssid'], center=True)
+            display_group.show()
+            wifi.radio.connect(wifi_conf['ssid'], wifi_conf['password'])
+            print('Connected to {}!'.format(wifi_conf['ssid']))
             print('My IP address is', wifi.radio.ipv4_address)
-            display_group.render_string('Connected! ',center=True, empty_as_transparent=True)
-            display_group.show() 
-            connected=1
+            display_group.render_string('Connected! ', center=True)
+            display_group.show()
+            connected = True
             break
         except ConnectionError:
-            print('Connection to ' + wifi_connection_conf['ssid'] + ' has failed. Retrying....')
+            fail_count += 1
+            print('Connection to {} has failed. Trying next ssid...'.format(wifi_conf['ssid']))
+
+    if fail_count == len(secrets):
+        display_group.render_string('no wifi!', center=True)
+        display_group.show()
+        time.sleep(5)
 
 pool = socketpool.SocketPool(wifi.radio)
 requests = adafruit_requests.Session(pool, ssl.create_default_context())
