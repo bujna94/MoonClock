@@ -15,6 +15,9 @@ CHAR_CHAIN = '\ue010'
 CHAR_WIDESATOSHI = '\ue011'
 CHAR_MONEY_BAG = '\ue012'
 CHAR_HALVING = '\ue013'
+CHAR_WIFI = '\ue014'
+CHAR_CHECK = '\ue015'
+CHAR_CROSS = '\ue016'
 
 SYMBOLS_MAP = {
     ord('0'): symbols.ZERO,
@@ -117,6 +120,9 @@ SYMBOLS_MAP = {
     ord(CHAR_CHAIN): symbols.CHAIN,
     ord(CHAR_MONEY_BAG): symbols.MONEY_BAG,
     ord(CHAR_HALVING): symbols.HALVING,
+    ord(CHAR_WIFI): symbols.WIFI,
+    ord(CHAR_CHECK): symbols.CHECK,
+    ord(CHAR_CROSS): symbols.CROSS,
 }
 
 
