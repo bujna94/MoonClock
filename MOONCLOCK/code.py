@@ -56,13 +56,16 @@ while not connected:
             print('Connecting to {}'.format(wifi_conf['ssid']))
             display_group.render_string('connecting', center=True)
             display_group.show()
+            time.sleep(1)
             display_group.render_string('to ' + wifi_conf['ssid'], center=True)
             display_group.show()
+            time.sleep(1)
             wifi.radio.connect(wifi_conf['ssid'], wifi_conf['password'])
             print('Connected to {}!'.format(wifi_conf['ssid']))
             print('My IP address is', wifi.radio.ipv4_address)
             display_group.render_string('Connected! ', center=True)
             display_group.show()
+            time.sleep(1)
             connected = True
             break
         except ConnectionError:
