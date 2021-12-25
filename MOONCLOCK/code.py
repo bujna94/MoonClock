@@ -60,14 +60,14 @@ while not connected:
         try:
             print('Connecting to {}'.format(wifi_conf['ssid']))
             display_group.clear()
-            display_group.render_string('{0}{1}{2}'.format(font.CHAR_WIFI, ' ', wifi_conf['ssid'][:8]), center=False)
+            display_group.render_string('{0} {1}'.format(font.CHAR_WIFI, wifi_conf['ssid'][:8]), center=False)
             display_group.show()
             time.sleep(1)
             wifi.radio.connect(wifi_conf['ssid'], wifi_conf['password'])
             print('Connected to {}!'.format(wifi_conf['ssid']))
             print('My IP address is', wifi.radio.ipv4_address)
             display_group.clear()
-            display_group.render_string('{0}{1}'.format(font.CHAR_CHECK, ' '), center=True)
+            display_group.render_string('{0} '.format(font.CHAR_CHECK), center=True)
             display_group.show()
             time.sleep(1)
             connected = True
@@ -76,7 +76,7 @@ while not connected:
             fail_count += 1
             print('Connection to {} has failed. Trying next ssid...'.format(wifi_conf['ssid']))
             display_group.clear()
-            display_group.render_string('{0}{1}'.format(font.CHAR_CROSS, ' '), center=True)
+            display_group.render_string('{0} '.format(font.CHAR_CROSS), center=True)
             display_group.show()
             time.sleep(1)
 
