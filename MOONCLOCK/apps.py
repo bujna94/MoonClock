@@ -2,14 +2,15 @@ import font
 import time
 
 from adafruit_datetime import datetime
-from utils import get_current_datetime, timestamp_to_time, str_rjust, str_cjust
+from utils import get_current_datetime, timestamp_to_time, str_align
 
 
 class App:
-    def __init__(self, display_group, requests, duration=0, update_frequency=None):
+    def __init__(self, display_group, requests, duration=1, align='right', update_frequency=None):
         self.display_group = display_group
         self.requests = requests
         self.duration = duration
+        self.align = align
         self.update_frequency = update_frequency if update_frequency is not None else self.duration
 
     def run(self):
@@ -33,10 +34,11 @@ class App:
 
 
 class TimeApp(App):
-    def __init__(self, *args, timezone='Europe/Prague', show_seconds=False, **kwargs):
+    def __init__(self, *args, timezone='Europe/Prague', show_seconds=False, align = 'center', **kwargs):
         super().__init__(*args, **kwargs)
         self.timezone = timezone
         self.show_seconds = show_seconds
+        self.align = align
 
         datetime = get_current_datetime(self.requests, timezone)
 
@@ -66,10 +68,10 @@ class TimeApp(App):
 
         if self.show_seconds:
             string = '{}  {}  {}'.format(
-                str_rjust(str(hours), 2, '0'), str_rjust(str(minutes), 2, '0'), str_rjust(str(seconds), 2, '0'))
+                str_align(str(hours), 2, '0', self.align), str_align(str(minutes), 2, '0', self.align), str_align(str(seconds), 2, '0', self.align))
         else:
             string = '{}  {}'.format(
-                str_rjust(str(hours), 2, '0'), str_rjust(str(minutes), 2, '0'))
+                str_align(str(hours), 2, '0', self.align), str_align(str(minutes), 2, '0', self.align))
 
         print('This is current time: {}:{}:{}'.format(hours, minutes, seconds))
 
@@ -127,10 +129,11 @@ class CryptoApp(App):
         'btc': font.CHAR_BTC,
     }
 
-    def __init__(self, *args, base_currency='usd', crypto='bitcoin', **kwargs):
+    def __init__(self, *args, base_currency='usd', crypto='bitcoin', align = 'right', **kwargs):
         super().__init__(*args, **kwargs)
         self.base_currency = base_currency
         self.crypto = crypto
+        self.align = align
 
     def update(self, first, remaining_duration):
         URL = 'https://api.coingecko.com/api/v3/simple/price?ids={}&vs_currencies={}'.format(self.crypto, self.base_currency)
@@ -144,10 +147,10 @@ class CryptoApp(App):
 
         self.display_group.clear()
         self.display_group.render_string(
-            '{0}{1}{2}'.format(
+            '{0}{1}{2} '.format(
                 self.BASE_CURRENCY_CHARACTER_MAP.get(self.base_currency, ' '),
-                str_cjust(str_price, 7),
-                self.CRYPTO_CHARACTER_MAP.get(self.crypto, ' ') + ' '
+                str_align(str_price, 7, ' ', self.align),
+                self.CRYPTO_CHARACTER_MAP.get(self.crypto, ' ')
             ),
             center=True
         )
@@ -185,8 +188,9 @@ class AutoContrastApp(App):
 
 
 class BlockHeight(App):
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, align = 'center', **kwargs):
         super().__init__(*args, **kwargs)
+        self.align = align
 
     def update(self, first, remaining_duration):
         URL = 'https://mempool.space/api/blocks/tip/height'
@@ -198,15 +202,19 @@ class BlockHeight(App):
 
         self.display_group.clear()
         self.display_group.render_string(
-            '{} {}{}'.format(font.CHAR_CHAIN, str_height, font.CHAR_BTC),
-            center=False
+            '{} {}{}'.format(
+                font.CHAR_CHAIN,
+                str_align(str_height, 6, ' ', self.align),
+                font.CHAR_BTC
+            ), center=False
         )
         self.display_group.show() 
 
 
 class Halving(App):
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, align = 'center', **kwargs):
         super().__init__(*args, **kwargs)
+        self.align=align
 
     def update(self, first, remaining_duration):
         URL = 'https://mempool.space/api/blocks/tip/height'
@@ -218,15 +226,19 @@ class Halving(App):
 
         self.display_group.clear()
         self.display_group.render_string(
-            '{0} {1}'.format(font.CHAR_HALVING, halving,),
-            center=False
+            '{0} {1}'.format(
+                font.CHAR_HALVING,
+                str_align(halving, 6, ' ', self.align),
+            ), center=False
         )
         self.display_group.show()  
 
 
 class Fees(App):
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, align = 'center', **kwargs):
         super().__init__(*args, **kwargs)
+        self.align = align
+
 
     def update(self, first, remaining_duration):
         URL = 'https://mempool.space/api/v1/fees/recommended'
@@ -235,26 +247,85 @@ class Fees(App):
         hour_fee = str(fees['hourFee'])
         
         print('Recommended fees:', str(fees))
-
-        fee_string = str_cjust('{}{}:{}{}'.format(font.CHAR_SATOSHI, fastest_fee, font.CHAR_SATOSHI, hour_fee), 7)
+        
         if len(fastest_fee) + len(hour_fee) > 5:
-            self.display_group.clear()
-            self.display_group.render_string(fee_string, center=False)
+            fee_string = '{}{}:{}{}'.format(font.CHAR_SATOSHI, fastest_fee, font.CHAR_SATOSHI, hour_fee)
+            str_to_render = str_align(fee_string, 10, ' ', self.align)
         else:
-            self.display_group.clear()
-            self.display_group.render_string('{0} {1}'.format(font.CHAR_MONEY_BAG, fee_string), center=False)
-        self.display_group.show()  
+            fee_string = '{}{}:{}{}'.format(font.CHAR_SATOSHI, fastest_fee, font.CHAR_SATOSHI, hour_fee)
+            str_to_render = '{} {}'.format(font.CHAR_MONEY_BAG, str_align(fee_string, 7, ' ', self.align))
+        
+        self.display_group.clear()
+        self.display_group.render_string(str_to_render, center=False)
+        self.display_group.show()
 
 
 class Text(App):
-    def __init__(self, *args, text='', **kwargs):
+    def __init__(self, *args, text='', align='center', **kwargs):
         super().__init__(*args, **kwargs)
         self.text = text
+        self.align = align
 
     def update(self, first, remaining_duration):
         text = str(self.text)
         print('Show text: ', text)
 
         self.display_group.clear()
-        self.display_group.render_string(text, center=True)
-        self.display_group.show()  
+        self.display_group.render_string(str_align(text, 10, ' ', self.align), center=False)
+        self.display_group.show()
+
+class MarketCap(App):
+    CRYPTO_CHARACTER_MAP = {
+        'cardano': font.CHAR_ADA,
+        'baked-token': font.CHAR_BAKED,
+        'bitcoin': font.CHAR_BTC,
+        'dogecoin': font.CHAR_DOGE,
+        'ethereum': font.CHAR_ETH,
+        'litecoin': font.CHAR_LTC,
+        'polkadot': font.CHAR_POLKADOT,
+        'kusama': font.CHAR_KSM,
+    }
+
+    BASE_CURRENCY_CHARACTER_MAP = {
+        'usd': '$',
+        'eur': '€',
+        'gbp': '£',  
+        'sats': font.CHAR_WIDESATOSHI,
+        'btc': font.CHAR_BTC,
+    }
+
+    def __init__(self, *args, crypto='bitcoin', base_currency='usd', align='center', **kwargs):
+        super().__init__(*args, **kwargs)
+        self.crypto = crypto
+        self.base_currency = base_currency
+        self.align = align
+
+    def update(self, first, remaining_duration):
+        URL = 'https://api.coingecko.com/api/v3/coins/{}?localization=false&tickers=false&market_data=true&community_data=false&developer_data=false&sparkline=false'.format(self.crypto)
+
+        market_cap = self.requests.get(URL).json()['market_data']['market_cap'][self.base_currency]
+        
+        index=0
+        arr = ['', 'k', 'M', 'B', 'T', 'Q']
+        while market_cap >=1000:
+            index=index+1
+            market_cap /= 1000
+
+
+        str_market_cap = '{0}{1}'.format(
+            str(round(float(market_cap),1)),
+            str(arr[index]),
+        )
+
+        print('This is ' + self.crypto + ' market cap: ' + str_market_cap)
+
+        self.display_group.clear()
+        self.display_group.render_string(
+            '{0}{1}{2} '.format(
+                self.BASE_CURRENCY_CHARACTER_MAP.get(self.base_currency, ' '),
+                str_align(str_market_cap, 7, ' ', self.align),
+                self.CRYPTO_CHARACTER_MAP.get(self.crypto, ' ')
+            ),
+            center=True
+        )
+        self.display_group.show()

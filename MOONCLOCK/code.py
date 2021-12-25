@@ -101,6 +101,7 @@ APPS = {
     'halving': Halving,
     'fees': Fees,
     'text': Text,
+    'marketcap': MarketCap,
 }
 
 
