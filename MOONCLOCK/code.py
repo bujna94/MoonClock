@@ -7,6 +7,7 @@ import board
 import busio
 import socketpool
 import wifi
+import supervisor
 
 from apps import *
 from display import BetterSSD1306_I2C, DisplayGroup
@@ -125,6 +126,8 @@ def main():
             except Exception as e:
                 print('Application {} has crashed'.format(app.__class__.__name__))
                 traceback.print_exception(type(e), e, e.__traceback__)
+                time.sleep(1)
+                supervisor.reload()
 
 
 if __name__ == '__main__':
