@@ -11,10 +11,13 @@ CHAR_POLKADOT = '\ue006'
 CHAR_WIDECOLON = '\ue007'
 CHAR_SATOSHI = '\ue008'
 CHAR_KSM = '\ue009'
-CHAR_CHAIN = '\ue010'
-CHAR_WIDESATOSHI = '\ue011'
-CHAR_MONEY_BAG = '\ue012'
-CHAR_HALVING = '\ue013'
+CHAR_CHAIN = '\ue00A'
+CHAR_WIDESATOSHI = '\ue00B'
+CHAR_MONEY_BAG = '\ue00C'
+CHAR_HALVING = '\ue00E'
+CHAR_WIFI = '\ue00E'
+CHAR_CHECK = '\ue00F'
+CHAR_CROSS = '\ue010'
 
 SYMBOLS_MAP = {
     ord('0'): symbols.ZERO,
@@ -117,6 +120,9 @@ SYMBOLS_MAP = {
     ord(CHAR_CHAIN): symbols.CHAIN,
     ord(CHAR_MONEY_BAG): symbols.MONEY_BAG,
     ord(CHAR_HALVING): symbols.HALVING,
+    ord(CHAR_WIFI): symbols.WIFI,
+    ord(CHAR_CHECK): symbols.CHECK,
+    ord(CHAR_CROSS): symbols.CROSS,
 }
 
 

@@ -34,7 +34,7 @@ class DisplayGroup:
         for display in self.displays:
             display.fill(0)
 
-    def render_string(self, string, center=False, empty_as_transparent=False):
+    def render_string(self, string, center=False, empty_as_transparent=True):
         string = center_string(string) if center else string
 
         for i, character in enumerate(string):
