@@ -18,8 +18,12 @@ CHAR_HALVING = '\ue00D'
 CHAR_WIFI = '\ue00E'
 CHAR_CHECK = '\ue00F'
 CHAR_CROSS = '\ue010'
+CHAR_DELTA = '\ue011'
+CHAR_SIGMA = '\ue012'
+CHAR_MOSCOW = '\ue013'
 
 SYMBOLS_MAP = {
+    # Numbers
     ord('0'): symbols.ZERO,
     ord('1'): symbols.ONE,
     ord('2'): symbols.TWO,
@@ -30,26 +34,6 @@ SYMBOLS_MAP = {
     ord('7'): symbols.SEVEN,
     ord('8'): symbols.EIGHT,
     ord('9'): symbols.NINE,
-    ord('.'): symbols.DOT,
-    ord('$'): symbols.DOLLAR,
-    ord('€'): symbols.EUR,
-    ord('£'): symbols.GBP,
-    ord(':'): symbols.COLON,
-    ord(' '): symbols.EMPTY,
-    ord('@'): symbols.AT,
-    ord('°'): symbols.DEGREE,
-    ord('÷'): symbols.DIVIDE,
-    ord('='): symbols.EQUAL,
-    ord('!'): symbols.EXCLAMATION_MARK,
-    ord('#'): symbols.HASH,
-    ord('-'): symbols.MINUS,
-    ord('×'): symbols.MULTIPLY,
-    ord('/'): symbols.OVER,
-    ord('%'): symbols.PERCENT,
-    ord('+'): symbols.PLUS,
-    ord('?'): symbols.QUESTION_MARK,
-    ord('*'): symbols.STAR,
-
 
     # Alphabet
     ord('A'): symbols.A,
@@ -105,6 +89,29 @@ SYMBOLS_MAP = {
     ord('y'): symbols.Y,
     ord('z'): symbols.Z,
 
+    # Symbols
+    ord('.'): symbols.DOT,
+    ord('$'): symbols.DOLLAR,
+    ord('€'): symbols.EUR,
+    ord('£'): symbols.GBP,
+    ord(':'): symbols.COLON,
+    ord(' '): symbols.EMPTY,
+    ord('@'): symbols.AT,
+    ord('°'): symbols.DEGREE,
+    ord('÷'): symbols.DIVIDE,
+    ord('='): symbols.EQUAL,
+    ord('!'): symbols.EXCLAMATION_MARK,
+    ord('#'): symbols.HASH,
+    ord('-'): symbols.MINUS,
+    ord('×'): symbols.MULTIPLY,
+    ord('/'): symbols.OVER,
+    ord('%'): symbols.PERCENT,
+    ord('+'): symbols.PLUS,
+    ord('?'): symbols.QUESTION_MARK,
+    ord('*'): symbols.STAR,
+    ord('Δ'): symbols.DELTA,
+    ord('Σ'): symbols.SIGMA,
+
     # Crypto logos
     ord(CHAR_ADA): symbols.ADA,
     ord(CHAR_BAKED): symbols.BAKED,
@@ -114,6 +121,8 @@ SYMBOLS_MAP = {
     ord(CHAR_LTC): symbols.LTC,
     ord(CHAR_POLKADOT): symbols.POLKADOT,
     ord(CHAR_KSM): symbols.KSM,
+
+    # Other logos, characters
     ord(CHAR_WIDECOLON): symbols.WIDECOLON,
     ord(CHAR_SATOSHI): symbols.SATOSHI,
     ord(CHAR_WIDESATOSHI): symbols.WIDESATOSHI,
@@ -121,8 +130,9 @@ SYMBOLS_MAP = {
     ord(CHAR_MONEY_BAG): symbols.MONEY_BAG,
     ord(CHAR_HALVING): symbols.HALVING,
     ord(CHAR_WIFI): symbols.WIFI,
-    ord(CHAR_CHECK): symbols.CHECK,
-    ord(CHAR_CROSS): symbols.CROSS,
+    ord(CHAR_DELTA): symbols.DELTA,
+    ord(CHAR_SIGMA): symbols.SIGMA,
+    ord(CHAR_MOSCOW): symbols.MOSCOW,
 }
 
 
