@@ -73,10 +73,10 @@ class TimeApp(App):
 
         if self.show_seconds:
             string = '{}  {}  {}'.format(
-                str_rjust(str(hours), 2, '0'), str_rjust(str(minutes), 2, '0'), str_rjust(str(seconds), 2, '0'))
+                str_align(str(hours), 2, '0', self.align), str_align(str(minutes), 2, '0', self.align), str_align(str(seconds), 2, '0', self.align))
         else:
             string = '{}  {}'.format(
-                str_rjust(str(hours), 2, '0'), str_rjust(str(minutes), 2, '0'))
+                str_align(str(hours), 2, '0', self.align), str_align(str(minutes), 2, '0', self.align))
 
         print('This is current time: {}:{}:{}'.format(hours, minutes, seconds))
 
@@ -350,7 +350,6 @@ class MarketCap(App):
             center=True
         )
         self.display_group.show()
-
 
 class MoscowTime(App):
     def __init__(self, *args, align='right', duration=30, update_frequency=None, **kwargs):
