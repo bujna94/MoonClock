@@ -17,8 +17,10 @@ class App:
         used_duration = 0
         while True:
             start = time.monotonic()
-            self.update(first=(used_duration == 0),
-            remaining_duration=self.duration - used_duration)
+            self.update(
+                first=(used_duration == 0),
+                remaining_duration=self.duration - used_duration
+            )
             update_duration = time.monotonic() - start
 
             sleep = self.update_frequency - update_duration
@@ -163,6 +165,7 @@ class CryptoApp(App):
             center=True
         )
         self.display_group.show()
+
 
 class AutoContrastApp(App):
 
@@ -372,6 +375,7 @@ class MoscowTime(App):
             str_align('{}{} {}'.format(str_hour, font.CHAR_WIDECOLON, str_min), 10, ' ', 'center'), center=False
         )
         self.display_group.show()
+
 
 class Difficulty(App):
     def __init__(self, *args, align='center', duration=30, update_frequency=None, **kwargs):
