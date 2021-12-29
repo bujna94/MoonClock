@@ -164,32 +164,6 @@ class CryptoApp(App):
         )
         self.display_group.show()
 
-
-class MoscowTime(App):
-    def __init__(self, *args, align='right', duration=30, update_frequency=5, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.align = align
-        self.duration = duration
-        self.update_frequency = update_frequency
-
-    def update(self, first, remaining_duration):
-        URL = 'https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd'
-        price = self.requests.get(URL).json()['bitcoin']['usd']
-        price = 100000000 / price
-
-        str_price = str(int(price))
-        str_hour = str_price[:2]
-        str_min = str_price[2:]
-
-        print('This is Moscow Time' + ' : ' + str_hour + ':' + str_min)
-
-        self.display_group.clear()
-        self.display_group.render_string(
-            str_align('{}{} {}'.format(str_hour, font.CHAR_WIDECOLON, str_min), 10, ' ', 'center'), center=False
-        )
-        self.display_group.show()
-
-
 class AutoContrastApp(App):
 
     def __init__(self, *args, latitude=None, longitude=None, contrast_after_sunrise=None, duration=0, contrast_after_sunset=None, **kwargs):
@@ -221,10 +195,11 @@ class AutoContrastApp(App):
 
 
 class BlockHeight(App):
-    def __init__(self, *args, align='center', duration=30, **kwargs):
+    def __init__(self, *args, align='center', duration=30, update_frequency=None, **kwargs):
         super().__init__(*args, **kwargs)
         self.align = align
         self.duration = duration
+        self.update_frequency = update_frequency if update_frequency is not None else self.duration
 
     def update(self, first, remaining_duration):
         URL = 'https://mempool.space/api/blocks/tip/height'
@@ -246,10 +221,11 @@ class BlockHeight(App):
 
 
 class Halving(App):
-    def __init__(self, *args, align='center', duration=30, **kwargs):
+    def __init__(self, *args, align='center', duration=30, update_frequency=None, **kwargs):
         super().__init__(*args, **kwargs)
         self.align = align
         self.duration = duration
+        self.update_frequency = update_frequency if update_frequency is not None else self.duration
 
     def update(self, first, remaining_duration):
         URL = 'https://mempool.space/api/blocks/tip/height'
@@ -270,10 +246,11 @@ class Halving(App):
 
 
 class Fees(App):
-    def __init__(self, *args, align='center', duration=30, **kwargs):
+    def __init__(self, *args, align='center', duration=30, update_frequency=None, **kwargs):
         super().__init__(*args, **kwargs)
         self.align = align
         self.duration = duration
+        self.update_frequency = update_frequency if update_frequency is not None else self.duration
 
     def update(self, first, remaining_duration):
         URL = 'https://mempool.space/api/v1/fees/recommended'
@@ -299,11 +276,12 @@ class Fees(App):
 
 
 class Text(App):
-    def __init__(self, *args, text='', align='center', duration=30, **kwargs):
+    def __init__(self, *args, text='', align='center', duration=30, update_frequency=None, **kwargs):
         super().__init__(*args, **kwargs)
         self.text = text
         self.align = align
         self.duration = duration
+        self.update_frequency = update_frequency if update_frequency is not None else self.duration
 
     def update(self, first, remaining_duration):
         text = str(self.text)
@@ -335,12 +313,13 @@ class MarketCap(App):
         'btc': font.CHAR_BTC,
     }
 
-    def __init__(self, *args, crypto='bitcoin', base_currency='usd', align='center', duration=30, **kwargs):
+    def __init__(self, *args, crypto='bitcoin', base_currency='usd', align='center', duration=30, update_frequency=None, **kwargs):
         super().__init__(*args, **kwargs)
         self.crypto = crypto
         self.base_currency = base_currency
         self.align = align
         self.duration = duration
+        self.update_frequency = update_frequency if update_frequency is not None else self.duration
 
     def update(self, first, remaining_duration):
         URL = 'https://api.coingecko.com/api/v3/coins/{}?localization=false&tickers=false&market_data=true&community_data=false&developer_data=false&sparkline=false'.format(
@@ -370,11 +349,36 @@ class MarketCap(App):
         self.display_group.show()
 
 
-class Difficulty(App):
-    def __init__(self, *args, align='center', duration=30, **kwargs):
+class MoscowTime(App):
+    def __init__(self, *args, align='right', duration=30, update_frequency=None, **kwargs):
         super().__init__(*args, **kwargs)
         self.align = align
         self.duration = duration
+        self.update_frequency = update_frequency if update_frequency is not None else self.duration
+
+    def update(self, first, remaining_duration):
+        URL = 'https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd'
+        price = self.requests.get(URL).json()['bitcoin']['usd']
+        price = 100000000 / price
+
+        str_price = str(int(price))
+        str_hour = str_price[:2]
+        str_min = str_price[2:]
+
+        print('This is Moscow Time' + ' : ' + str_hour + ':' + str_min)
+
+        self.display_group.clear()
+        self.display_group.render_string(
+            str_align('{}{} {}'.format(str_hour, font.CHAR_WIDECOLON, str_min), 10, ' ', 'center'), center=False
+        )
+        self.display_group.show()
+
+class Difficulty(App):
+    def __init__(self, *args, align='center', duration=30, update_frequency=None, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.align = align
+        self.duration = duration
+        self.update_frequency = update_frequency if update_frequency is not None else self.duration
 
     def update(self, first, remaining_duration):
 
@@ -390,13 +394,14 @@ class Difficulty(App):
 
 
 class Temperature(App):
-    def __init__(self, *args, align='center', city='', key='', units='', duration=30, **kwargs):
+    def __init__(self, *args, align='center', city='', key='', units='', update_frequency=None, duration=30, **kwargs):
         super().__init__(*args, **kwargs)
         self.align = align
         self.duration = duration
         self.city = city
         self.key = key
         self.units = units
+        self.update_frequency = update_frequency if update_frequency is not None else self.duration
         if city is None or key is None or units is None:
             raise ValueError(
                 'Not defined argument city:{} or key:{} or units:{}'.format(city, key, units))
