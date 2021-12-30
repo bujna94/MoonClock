@@ -3,7 +3,7 @@ import time
 
 from adafruit_datetime import datetime
 
-from utils import get_current_datetime, timestamp_to_time, str_align, number_to_human
+from utils import get_current_datetime, str_rjust, timestamp_to_time, str_align, number_to_human
 
 
 class App:
@@ -75,12 +75,12 @@ class TimeApp(App):
 
         if self.show_seconds:
             string = '{}  {}  {}'.format(
-                str_align(str(hours), 2, '0', self.align), str_align(str(minutes), 2, '0', self.align),
-                str_align(str(seconds), 2, '0', self.align)
+                str_rjust(str(hours), 2, '0'), str_rjust(str(minutes), 2, '0'),
+                str_rjust(str(seconds), 2, '0'),
             )
         else:
             string = '{}  {}'.format(
-                str_align(str(hours), 2, '0', self.align), str_align(str(minutes), 2, '0', self.align)
+                str_rjust(str(hours), 2, '0'), str_rjust(str(minutes), 2, '0')
             )
 
         print('This is current time: {}:{}:{}'.format(hours, minutes, seconds))
