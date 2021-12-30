@@ -1,8 +1,9 @@
-import font
 import time
 
 from adafruit_datetime import datetime
-from utils import center_string, get_current_datetime, timestamp_to_time, str_align, str_rjust, number_to_human
+
+import font
+from utils import get_current_datetime, timestamp_to_time, str_align, number_to_human
 
 
 class App:
@@ -37,7 +38,8 @@ class App:
 
 
 class TimeApp(App):
-    def __init__(self, *args, timezone='Europe/Prague', show_seconds=False, update_frequency=1, duration=30, align='center', **kwargs):
+    def __init__(self, *args, timezone='Europe/Prague', show_seconds=False, update_frequency=1, duration=30,
+                 align='center', **kwargs):
         super().__init__(*args, **kwargs)
         self.timezone = timezone
         self.show_seconds = show_seconds
@@ -53,7 +55,7 @@ class TimeApp(App):
         self._last_minutes = None
         self._last_seconds = None
 
-    def update(self, first,  remaining_duration):
+    def update(self, first, remaining_duration):
         loop_start = time.monotonic()
         delta = time.monotonic() - self.start
         current_timestamp = self.unixtime + int(delta)
@@ -73,10 +75,13 @@ class TimeApp(App):
 
         if self.show_seconds:
             string = '{}  {}  {}'.format(
-                str_align(str(hours), 2, '0', self.align), str_align(str(minutes), 2, '0', self.align), str_align(str(seconds), 2, '0', self.align))
+                str_align(str(hours), 2, '0', self.align), str_align(str(minutes), 2, '0', self.align),
+                str_align(str(seconds), 2, '0', self.align)
+            )
         else:
             string = '{}  {}'.format(
-                str_align(str(hours), 2, '0', self.align), str_align(str(minutes), 2, '0', self.align))
+                str_align(str(hours), 2, '0', self.align), str_align(str(minutes), 2, '0', self.align)
+            )
 
         print('This is current time: {}:{}:{}'.format(hours, minutes, seconds))
 
@@ -84,13 +89,10 @@ class TimeApp(App):
             self.display_group.clear()
 
             if self.show_seconds:
-                self.display_group.displays[1].render_character(
-                    font.CHAR_WIDECOLON)
-                self.display_group.displays[3].render_character(
-                    font.CHAR_WIDECOLON)
+                self.display_group.displays[1].render_character(font.CHAR_WIDECOLON)
+                self.display_group.displays[3].render_character(font.CHAR_WIDECOLON)
             else:
-                self.display_group.displays[2].render_character(
-                    font.CHAR_WIDECOLON)
+                self.display_group.displays[2].render_character(font.CHAR_WIDECOLON)
             self.display_group.show()
 
         self.display_group.render_string(string, center=True)
@@ -169,7 +171,8 @@ class CryptoApp(App):
 
 class AutoContrastApp(App):
 
-    def __init__(self, *args, latitude=None, longitude=None, contrast_after_sunrise=None, duration=0, contrast_after_sunset=None, **kwargs):
+    def __init__(self, *args, latitude=None, longitude=None, contrast_after_sunrise=None, duration=0,
+                 contrast_after_sunset=None, **kwargs):
         super().__init__(*args, **kwargs)
 
         self.latitude = latitude
@@ -264,14 +267,11 @@ class Fees(App):
         print('Recommended fees:', str(fees))
 
         if len(fastest_fee) + len(hour_fee) > 5:
-            fee_string = '{}{}:{}{}'.format(
-                font.CHAR_SATOSHI, fastest_fee, font.CHAR_SATOSHI, hour_fee)
+            fee_string = '{}{}:{}{}'.format(font.CHAR_SATOSHI, fastest_fee, font.CHAR_SATOSHI, hour_fee)
             str_to_render = str_align(fee_string, 10, ' ', self.align)
         else:
-            fee_string = '{}{}:{}{}'.format(
-                font.CHAR_SATOSHI, fastest_fee, font.CHAR_SATOSHI, hour_fee)
-            str_to_render = '{} {}'.format(
-                font.CHAR_MONEY_BAG, str_align(fee_string, 7, ' ', self.align))
+            fee_string = '{}{}:{}{}'.format(font.CHAR_SATOSHI, fastest_fee, font.CHAR_SATOSHI, hour_fee)
+            str_to_render = '{} {}'.format(font.CHAR_MONEY_BAG, str_align(fee_string, 7, ' ', self.align))
 
         self.display_group.clear()
         self.display_group.render_string(str_to_render, center=False)
@@ -291,8 +291,7 @@ class Text(App):
         print('Show text: ', text)
 
         self.display_group.clear()
-        self.display_group.render_string(
-            str_align(text, 10, ' ', self.align), center=False)
+        self.display_group.render_string(str_align(text, 10, ' ', self.align), center=False)
         self.display_group.show()
 
 
@@ -316,7 +315,8 @@ class MarketCap(App):
         'btc': font.CHAR_BTC,
     }
 
-    def __init__(self, *args, crypto='bitcoin', base_currency='usd', align='center', duration=30, update_frequency=None, **kwargs):
+    def __init__(self, *args, crypto='bitcoin', base_currency='usd', align='center', duration=30, update_frequency=None,
+                 **kwargs):
         super().__init__(*args, **kwargs)
         self.crypto = crypto
         self.base_currency = base_currency
@@ -325,18 +325,15 @@ class MarketCap(App):
         self.update_frequency = update_frequency if update_frequency is not None else self.duration
 
     def update(self, first, remaining_duration):
-        URL = 'https://api.coingecko.com/api/v3/coins/{}?localization=false&tickers=false&market_data=true&community_data=false&developer_data=false&sparkline=false'.format(
-            self.crypto)
+        URL = 'https://api.coingecko.com/api/v3/coins/{}?localization=false&tickers=false&market_data=true' \
+              '&community_data=false&developer_data=false&sparkline=false'.format(self.crypto)
 
         market_cap = self.requests.get(URL).json(
         )['market_data']['market_cap'][self.base_currency]
 
         market, market_letter = number_to_human(market_cap)
 
-        str_market_cap = '{0}{1}'.format(
-            str(round(float(market), 1)),
-            str(market_letter),
-        )
+        str_market_cap = '{0}{1}'.format(str(round(float(market), 1)), str(market_letter))
 
         print('This is ' + self.crypto + ' market cap: ' + str_market_cap)
 
@@ -350,6 +347,7 @@ class MarketCap(App):
             center=True
         )
         self.display_group.show()
+
 
 class MoscowTime(App):
     def __init__(self, *args, align='right', duration=30, update_frequency=None, **kwargs):
@@ -384,15 +382,15 @@ class Difficulty(App):
         self.update_frequency = update_frequency if update_frequency is not None else self.duration
 
     def update(self, first, remaining_duration):
-
         URL = 'https://mempool.space/api/v1/difficulty-adjustment'
 
-        difficulty_adjustment = str(
-            round(float(self.requests.get(URL).json()['difficultyChange']), 1))
+        difficulty_adjustment = str(round(float(self.requests.get(URL).json()['difficultyChange']), 1))
 
         self.display_group.clear()
         self.display_group.render_string(
-            str_align('{}{}'.format(difficulty_adjustment, '%'), 10, ' ', self.align), center=True)
+            str_align('{}{}'.format(difficulty_adjustment, '%'), 10, ' ', self.align),
+            center=True
+        )
         self.display_group.show()
 
 
@@ -406,18 +404,14 @@ class Temperature(App):
         self.units = units
         self.update_frequency = update_frequency if update_frequency is not None else self.duration
         if city is None or key is None or units is None:
-            raise ValueError(
-                'Not defined argument city:{} or key:{} or units:{}'.format(city, key, units))
+            raise ValueError('Not defined argument city:{} or key:{} or units:{}'.format(city, key, units))
 
     def update(self, first, remaining_duration):
-
         URL = 'https://api.openweathermap.org/data/2.5/weather?q={}&appid={}&units={}'.format(
             self.city, self.key, self.units)
 
-        temp = str(
-            round(float(self.requests.get(URL).json()['main']['temp']), 2))
+        temp = str(round(float(self.requests.get(URL).json()['main']['temp']), 2))
 
         self.display_group.clear()
-        self.display_group.render_string(
-            str_align('{}{}'.format(temp, '°C'), 8, ' ', self.align), center=True)
+        self.display_group.render_string(str_align('{}{}'.format(temp, '°C'), 8, ' ', self.align), center=True)
         self.display_group.show()

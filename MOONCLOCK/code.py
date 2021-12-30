@@ -6,8 +6,8 @@ import adafruit_tca9548a
 import board
 import busio
 import socketpool
-import wifi
 import supervisor
+import wifi
 
 from apps import *
 from display import BetterSSD1306_I2C, DisplayGroup
@@ -62,27 +62,23 @@ while not connected:
         try:
             print('Connecting to {}'.format(wifi_conf['ssid']))
             display_group.clear()
-            display_group.render_string('{0} {1}'.format(
-                font.CHAR_WIFI, wifi_conf['ssid'][:8]), center=False)
+            display_group.render_string('{0} {1}'.format(font.CHAR_WIFI, wifi_conf['ssid'][:8]), center=False)
             display_group.show()
             time.sleep(1)
             wifi.radio.connect(wifi_conf['ssid'], wifi_conf['password'])
             print('Connected to {}!'.format(wifi_conf['ssid']))
             print('My IP address is', wifi.radio.ipv4_address)
             display_group.clear()
-            display_group.render_string(
-                '{0} '.format(font.CHAR_CHECK), center=True)
+            display_group.render_string('{0} '.format(font.CHAR_CHECK), center=True)
             display_group.show()
             time.sleep(1)
             connected = True
             break
         except ConnectionError:
             fail_count += 1
-            print('Connection to {} has failed. Trying next ssid...'.format(
-                wifi_conf['ssid']))
+            print('Connection to {} has failed. Trying next ssid...'.format(wifi_conf['ssid']))
             display_group.clear()
-            display_group.render_string(
-                '{0} '.format(font.CHAR_CROSS), center=True)
+            display_group.render_string('{0} '.format(font.CHAR_CROSS), center=True)
             display_group.show()
             time.sleep(1)
 
@@ -125,9 +121,8 @@ def main():
             apps.append(APPS[name](display_group, requests, **app_conf))
         except KeyError:
             raise ValueError('Unknown app {}'.format(name))
-        except:
-            print('Initialization of application {} has failed'.format(
-                APPS[name].__name__))
+        except Exception:
+            print('Initialization of application {} has failed'.format(APPS[name].__name__))
 
     # Run apps
     while True:
@@ -135,8 +130,7 @@ def main():
             try:
                 app.run()
             except Exception as e:
-                print('Application {} has crashed'.format(
-                    app.__class__.__name__))
+                print('Application {} has crashed'.format(app.__class__.__name__))
                 traceback.print_exception(type(e), e, e.__traceback__)
                 time.sleep(1)
                 supervisor.reload()
