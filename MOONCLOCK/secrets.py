@@ -3,15 +3,15 @@
 
 secrets = [
     {
-        'ssid': 'ASUS',
-        'password': 'asusrouter',
+        'ssid': 'WIFI_SSID',
+        'password': 'WIFI_PASSWORD',
     },
-    {
-        'ssid': 'Dvorak',
-        'password': 'asusrouter',
-    },
-    {
-        'ssid': 'modem_tp',
-        'password': 'asusrouter',
-    },
+    # {
+    #    'ssid': 'WIFI_SSID2',
+    #    'password': 'WIFI_PASSWORD2',
+    # },
+    # {
+    #    'ssid': 'WIFI_SSID3',
+    #    'password': 'WIFI_PASSWORD3',
+    # },
 ]
