@@ -1,11 +1,10 @@
-import ssl
-import traceback
-
 import adafruit_requests
 import adafruit_tca9548a
 import board
 import busio
+import traceback
 import socketpool
+import ssl
 import supervisor
 import wifi
 

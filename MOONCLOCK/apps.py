@@ -1,8 +1,8 @@
+import font
 import time
 
 from adafruit_datetime import datetime
 
-import font
 from utils import get_current_datetime, timestamp_to_time, str_align, number_to_human
 
 
