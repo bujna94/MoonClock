@@ -7,7 +7,6 @@ conf = {
             'name': 'moscow_time',
             'duration': 20,
             'update_frequency': 1,
-            'duration': 60,
         },
         {
             'name': 'temperature',
