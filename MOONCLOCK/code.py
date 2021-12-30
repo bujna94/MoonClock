@@ -1,13 +1,12 @@
-import ssl
-import traceback
-
 import adafruit_requests
 import adafruit_tca9548a
 import board
 import busio
+import traceback
 import socketpool
-import wifi
+import ssl
 import supervisor
+import wifi
 
 from apps import *
 from display import BetterSSD1306_I2C, DisplayGroup
@@ -39,7 +38,8 @@ if i2c.try_lock():
     i2c.unlock()
 
 tca = adafruit_tca9548a.TCA9548A(i2c)
-display_group = DisplayGroup([BetterSSD1306_I2C(WIDTH, HEIGHT, tca[i]) for i in range(5)])
+display_group = DisplayGroup(
+    [BetterSSD1306_I2C(WIDTH, HEIGHT, tca[i]) for i in range(5)])
 
 print('My MAC addr:', [hex(i) for i in wifi.radio.mac_address])
 # try to connect to any wifi from the secrets.py file
@@ -47,7 +47,8 @@ connected = False
 wifi_networks_available = wifi.radio.start_scanning_networks()
 print('Available WiFi networks:')
 for network in wifi_networks_available:
-    print('\t{}\t\tRSSI: {}\tChannel: {}'.format(str(network.ssid, 'utf-8'), network.rssi, network.channel))
+    print('\t{}\t\tRSSI: {}\tChannel: {}'.format(
+        str(network.ssid, 'utf-8'), network.rssi, network.channel))
 wifi.radio.stop_scanning_networks()
 
 display_group.render_string('wifi setup', center=True)
@@ -101,6 +102,10 @@ APPS = {
     'halving': Halving,
     'fees': Fees,
     'text': Text,
+    'marketcap': MarketCap,
+    'moscow_time': MoscowTime,
+    'difficulty': Difficulty,
+    'temperature': Temperature,
 }
 
 
@@ -115,7 +120,7 @@ def main():
             apps.append(APPS[name](display_group, requests, **app_conf))
         except KeyError:
             raise ValueError('Unknown app {}'.format(name))
-        except:
+        except Exception:
             print('Initialization of application {} has failed'.format(APPS[name].__name__))
 
     # Run apps

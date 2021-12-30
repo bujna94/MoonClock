@@ -6,12 +6,12 @@ secrets = [
         'ssid': 'WIFI_SSID',
         'password': 'WIFI_PASSWORD',
     },
-    #{
+    # {
     #    'ssid': 'WIFI_SSID2',
     #    'password': 'WIFI_PASSWORD2',
-    #},
-    #{
+    # },
+    # {
     #    'ssid': 'WIFI_SSID3',
     #    'password': 'WIFI_PASSWORD3',
-    #},
+    # },
 ]
