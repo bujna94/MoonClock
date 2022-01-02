@@ -38,8 +38,7 @@ class App:
 
 
 class TimeApp(App):
-    def __init__(self, *args, timezone='Europe/Prague', show_seconds=False, update_frequency=1, duration=30,
-                 align='center', **kwargs):
+    def __init__(self, *args, timezone='Europe/Prague', show_seconds=False, update_frequency=1, duration=30, align='center', **kwargs):
         super().__init__(*args, **kwargs)
         self.timezone = timezone
         self.show_seconds = show_seconds
@@ -139,12 +138,13 @@ class CryptoApp(App):
         'btc': font.CHAR_BTC,
     }
 
-    def __init__(self, *args, base_currency='usd', crypto='bitcoin', align='right', duration=30, **kwargs):
+    def __init__(self, *args, base_currency='usd', crypto='bitcoin', align='right', update_frequency=None, duration=30, **kwargs):
         super().__init__(*args, **kwargs)
         self.base_currency = base_currency
         self.crypto = crypto
         self.align = align
         self.duration = duration
+        self.update_frequency = update_frequency if update_frequency is not None else self.duration
 
     def update(self, first, remaining_duration):
         URL = 'https://api.coingecko.com/api/v3/simple/price?ids={}&vs_currencies={}'.format(
@@ -395,7 +395,7 @@ class Difficulty(App):
 
 
 class Temperature(App):
-    def __init__(self, *args, align='center', city='', key='', units='', update_frequency=None, duration=30, **kwargs):
+    def __init__(self, *args, align='center', city=None, key=None, units=None, update_frequency=None, duration=30, **kwargs):
         super().__init__(*args, **kwargs)
         self.align = align
         self.duration = duration
@@ -404,12 +404,12 @@ class Temperature(App):
         self.units = units
         self.update_frequency = update_frequency if update_frequency is not None else self.duration
         if city is None or key is None or units is None:
-            raise ValueError('Not defined argument city:{} or key:{} or units:{}'.format(city, key, units))
+            print ('Not defined argument city:{} or key:{} or units:{}'.format(city, key[:5], units))
+            raise ValueError ('Not defined argument city:{} or key:{} or units:{}'.format(city, key, units))
+
 
     def update(self, first, remaining_duration):
-        URL = 'https://api.openweathermap.org/data/2.5/weather?q={}&appid={}&units={}'.format(
-            self.city, self.key, self.units)
-
+        URL = 'https://api.openweathermap.org/data/2.5/weather?q={}&appid={}&units={}'.format(self.city, self.key, self.units)
         temp = str(round(float(self.requests.get(URL).json()['main']['temp']), 2))
 
         self.display_group.clear()
