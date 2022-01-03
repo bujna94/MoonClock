@@ -5,7 +5,6 @@ from adafruit_datetime import datetime
 
 from utils import get_current_datetime, str_rjust, timestamp_to_time, str_align, number_to_human
 
-
 class App:
     def __init__(self, display_group, requests, duration=0, align='right', update_frequency=None):
         self.display_group = display_group
@@ -138,12 +137,13 @@ class CryptoApp(App):
         'btc': font.CHAR_BTC,
     }
 
-    def __init__(self, *args, base_currency='usd', crypto='bitcoin', align='right', update_frequency=None, duration=30, **kwargs):
+    def __init__(self, *args, base_currency='usd', crypto='bitcoin', align='right', decimals=4, update_frequency=None, duration=30, **kwargs):
         super().__init__(*args, **kwargs)
         self.base_currency = base_currency
         self.crypto = crypto
         self.align = align
         self.duration = duration
+        self.decimals = decimals
         self.update_frequency = update_frequency if update_frequency is not None else self.duration
 
     def update(self, first, remaining_duration):
@@ -153,7 +153,7 @@ class CryptoApp(App):
         price = self.requests.get(URL).json()[self.crypto][self.base_currency]
         str_price = str(int(price) if price > 100 else price)[:7]
         if price < 1:
-            str_price = str(round(price, 4))
+            str_price = str(round(price, self.decimals))
 
         print('This is ' + self.crypto + ' price: ' + str_price)
 
@@ -170,9 +170,7 @@ class CryptoApp(App):
 
 
 class AutoContrastApp(App):
-
-    def __init__(self, *args, latitude=None, longitude=None, contrast_after_sunrise=None, duration=0,
-                 contrast_after_sunset=None, **kwargs):
+    def __init__(self, *args, latitude=None, longitude=None, contrast_after_sunrise=None, duration=0, contrast_after_sunset=None, **kwargs):
         super().__init__(*args, **kwargs)
 
         self.latitude = latitude
@@ -414,4 +412,49 @@ class Temperature(App):
 
         self.display_group.clear()
         self.display_group.render_string(str_align('{}{}'.format(temp, '°C'), 8, ' ', self.align), center=True)
+        self.display_group.show()
+
+# EXPERIMENTAL!!!
+class Xpub(App):
+    def __init__(self, *args, align='center', update_frequency=None, duration=30, xpub='', limit=10, offset=0, step_addresses=10, end_when_unused=100, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.align = align
+        self.duration = duration
+        self.xpub = xpub
+        self.limit = limit
+        self.offset = offset
+        self.end_when_unused = end_when_unused
+        self.step_addresses = step_addresses
+        self.update_frequency = update_frequency if update_frequency is not None else self.duration
+
+    def update(self, first, remaining_duration):
+        balance_total = 0
+        unused_addreses = 0
+        local_offset = 0
+        while(True):
+            URL = 'https://bitcoinexplorer.org/api/util/xyzpub/{}?limit={}&offset={}'.format(self.xpub, self.step_addresses, local_offset)
+            content = self.requests.get(URL).json()
+            addresses = content['receiveAddresses'] + content['changeAddresses']
+
+            for a in addresses:
+                URL_a = 'https://bitcoinexplorer.org/api/address/{}'.format(a)
+                addr_content = self.requests.get(URL_a).json()
+                address_txcount = addr_content['txHistory']['txCount']
+                address_balance = addr_content['txHistory']['balanceSat']
+
+                balance_total += address_balance
+                if address_txcount == 0:
+                    unused_addreses += 1
+                else:
+                    unused_addreses = 0
+
+            local_offset += self.step_addresses
+            if unused_addreses > self.end_when_unused:
+                break
+
+        (balance_human, ext_human) = number_to_human(balance_total)
+        str_balance=str(round(float(balance_human), 2)) + str(ext_human)
+        print ('your current balance: ' + str_balance)
+        self.display_group.clear()
+        self.display_group.render_string(str_balance, center=True)
         self.display_group.show()

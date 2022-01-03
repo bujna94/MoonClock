@@ -106,6 +106,7 @@ APPS = {
     'moscow_time': MoscowTime,
     'difficulty': Difficulty,
     'temperature': Temperature,
+    'xpub': Xpub,
 }
 
 
