@@ -367,7 +367,7 @@ class MoscowTime(App):
 
         self.display_group.clear()
         self.display_group.render_string(
-            str_align('{}{} {}'.format(str_hour, font.CHAR_WIDECOLON, str_min), 10, ' ', 'center'), center=False
+            str_align('{} {}{} {}{} '.format(font.CHAR_MOSCOW, str_hour, font.CHAR_WIDECOLON, str_min, font.CHAR_MOSCOW), 10, ' ', 'center'), center=False
         )
         self.display_group.show()
 
