@@ -415,13 +415,17 @@ class Temperature(App):
         self.display_group.show()
 
 class TestDisplay(App):
-    def __init__(self, *args, update_frequency=None, duration=30, **kwargs):
+    def __init__(self, *args, update_frequency=None, fill=1, duration=30, **kwargs):
         super().__init__(*args, **kwargs)
         self.duration = duration
+        self.fill = fill
         self.update_frequency = update_frequency if update_frequency is not None else self.duration
 
     def update(self, first, remaining_duration):
-        self.display_group.fill()
+        if self.fill == 1:
+            self.display_group.fill()
+        else:
+            self.display_group.clear()
         self.display_group.show()
 
 
