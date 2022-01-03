@@ -107,6 +107,7 @@ APPS = {
     'difficulty': Difficulty,
     'temperature': Temperature,
     'xpub': Xpub,
+    'test': TestDisplay,
 }
 
 

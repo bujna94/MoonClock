@@ -414,6 +414,18 @@ class Temperature(App):
         self.display_group.render_string(str_align('{}{}'.format(temp, '°C'), 8, ' ', self.align), center=True)
         self.display_group.show()
 
+class TestDisplay(App):
+    def __init__(self, *args, update_frequency=None, duration=30, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.duration = duration
+        self.update_frequency = update_frequency if update_frequency is not None else self.duration
+
+    def update(self, first, remaining_duration):
+        self.display_group.fill()
+        self.display_group.show()
+
+
+
 # EXPERIMENTAL!!!
 class Xpub(App):
     def __init__(self, *args, align='center', update_frequency=None, duration=30, xpub='', limit=10, offset=0, step_addresses=10, end_when_unused=100, **kwargs):
@@ -458,3 +470,4 @@ class Xpub(App):
         self.display_group.clear()
         self.display_group.render_string(str_balance, center=True)
         self.display_group.show()
+
