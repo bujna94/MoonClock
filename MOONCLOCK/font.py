@@ -133,6 +133,8 @@ SYMBOLS_MAP = {
     ord(CHAR_DELTA): symbols.DELTA,
     ord(CHAR_SIGMA): symbols.SIGMA,
     ord(CHAR_MOSCOW): symbols.MOSCOW,
+    ord(CHAR_CHECK): symbols.CHECK,
+    ord(CHAR_CROSS): symbols.CROSS,
 }
 
 
