@@ -21,6 +21,7 @@ CHAR_CROSS = '\ue010'
 CHAR_DELTA = '\ue011'
 CHAR_SIGMA = '\ue012'
 CHAR_MOSCOW = '\ue013'
+CHAR_MONEY_BAG_SAT = '\ue014'
 
 SYMBOLS_MAP = {
     # Numbers
@@ -128,6 +129,7 @@ SYMBOLS_MAP = {
     ord(CHAR_WIDESATOSHI): symbols.WIDESATOSHI,
     ord(CHAR_CHAIN): symbols.CHAIN,
     ord(CHAR_MONEY_BAG): symbols.MONEY_BAG,
+    ord(CHAR_MONEY_BAG_SAT): symbols.MONEY_BAG_SAT,
     ord(CHAR_HALVING): symbols.HALVING,
     ord(CHAR_WIFI): symbols.WIFI,
     ord(CHAR_DELTA): symbols.DELTA,
