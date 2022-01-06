@@ -479,3 +479,26 @@ class Xpub(App):
         self.display_group.show()
         time.sleep(self.duration + self.waittime)
 
+class LnbitsWalletBalance(App):
+    def __init__(self, *args, align='center', update_frequency=None, server='pay.sats.cz', invoicereadkey='', duration=30, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.align = align
+        self.duration = duration
+        self.server = server
+        self.invoicereadkey = invoicereadkey
+        self.update_frequency = update_frequency if update_frequency is not None else self.duration
+
+    def update(self, first, remaining_duration):
+
+        URL = 'https://{}/api/v1/wallet'.format(self.server)
+        try:
+            content = self.requests.get(URL, headers={"X-Api-Key": self.invoicereadkey}).json()
+            str_balance = str_align(str(content['balance'] // 1000), 10, ' ', self.align)
+        except:
+            str_balance = 'wrong key'
+
+        print ('There is ' + str_balance + ' sats available on ' + self.invoicereadkey)
+        
+        self.display_group.clear()
+        self.display_group.render_string(str_balance, center=False)
+        self.display_group.show()

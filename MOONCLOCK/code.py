@@ -107,6 +107,7 @@ APPS = {
     'temperature': Temperature,
     'xpub': Xpub,
     'test': TestDisplay,
+    'lnbits_wallet_balance': LnbitsWalletBalance,
 }
 
 
