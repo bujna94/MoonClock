@@ -7,7 +7,7 @@ from utils import get_current_datetime, str_rjust, timestamp_to_time, str_align,
 
 
 class App:
-    def __init__(self, display_group, requests, duration=0, align='right', update_frequency=None):
+    def __init__(self, display_group, requests, align='right', duration=30, update_frequency=None):
         self.display_group = display_group
         self.requests = requests
         self.duration = duration
@@ -38,14 +38,12 @@ class App:
 
 
 class TimeApp(App):
-    def __init__(self, *args, timezone='Europe/Prague', show_seconds=False, update_frequency=1, duration=30,
-                 align='center', **kwargs):
+    def __init__(self, *args, timezone='Europe/Prague', show_seconds=False, align='center', **kwargs):
+        kwargs['update_frequency'] = 0
         super().__init__(*args, **kwargs)
         self.timezone = timezone
         self.show_seconds = show_seconds
         self.align = align
-        self.update_frequency = update_frequency
-        self.duration = duration
 
         datetime = get_current_datetime(self.requests, timezone)
 
@@ -139,12 +137,11 @@ class CryptoApp(App):
         'btc': font.CHAR_BTC,
     }
 
-    def __init__(self, *args, base_currency='usd', crypto='bitcoin', align='right', duration=30, **kwargs):
+    def __init__(self, *args, base_currency='usd', crypto='bitcoin', align='right', **kwargs):
         super().__init__(*args, **kwargs)
         self.base_currency = base_currency
         self.crypto = crypto
         self.align = align
-        self.duration = duration
 
     def update(self, first, remaining_duration):
         URL = 'https://api.coingecko.com/api/v3/simple/price?ids={}&vs_currencies={}'.format(
@@ -171,8 +168,9 @@ class CryptoApp(App):
 
 class AutoContrastApp(App):
 
-    def __init__(self, *args, latitude=None, longitude=None, contrast_after_sunrise=None, duration=0,
-                 contrast_after_sunset=None, **kwargs):
+    def __init__(self, *args, latitude=None, longitude=None, contrast_after_sunrise=None, contrast_after_sunset=None,
+                 **kwargs):
+        kwargs['duration'] = 0
         super().__init__(*args, **kwargs)
 
         self.latitude = latitude
@@ -180,7 +178,6 @@ class AutoContrastApp(App):
         self.contrast_after_sunrise = contrast_after_sunrise
         self.contrast_after_sunset = contrast_after_sunset
         self.timezone = 'Etc/UTC'
-        self.duration = duration
 
     def update(self, first, remaining_duration):
         url = 'https://api.sunrise-sunset.org/json?lat={}&lng={}&date=today&formatted=0'.format(
@@ -201,11 +198,9 @@ class AutoContrastApp(App):
 
 
 class BlockHeight(App):
-    def __init__(self, *args, align='center', duration=30, update_frequency=None, **kwargs):
+    def __init__(self, *args, align='center', **kwargs):
         super().__init__(*args, **kwargs)
         self.align = align
-        self.duration = duration
-        self.update_frequency = update_frequency if update_frequency is not None else self.duration
 
     def update(self, first, remaining_duration):
         URL = 'https://mempool.space/api/blocks/tip/height'
@@ -227,11 +222,9 @@ class BlockHeight(App):
 
 
 class Halving(App):
-    def __init__(self, *args, align='center', duration=30, update_frequency=None, **kwargs):
+    def __init__(self, *args, align='center', **kwargs):
         super().__init__(*args, **kwargs)
         self.align = align
-        self.duration = duration
-        self.update_frequency = update_frequency if update_frequency is not None else self.duration
 
     def update(self, first, remaining_duration):
         URL = 'https://mempool.space/api/blocks/tip/height'
@@ -252,11 +245,9 @@ class Halving(App):
 
 
 class Fees(App):
-    def __init__(self, *args, align='center', duration=30, update_frequency=None, **kwargs):
+    def __init__(self, *args, align='center', **kwargs):
         super().__init__(*args, **kwargs)
         self.align = align
-        self.duration = duration
-        self.update_frequency = update_frequency if update_frequency is not None else self.duration
 
     def update(self, first, remaining_duration):
         URL = 'https://mempool.space/api/v1/fees/recommended'
@@ -279,12 +270,10 @@ class Fees(App):
 
 
 class Text(App):
-    def __init__(self, *args, text='', align='center', duration=30, update_frequency=None, **kwargs):
+    def __init__(self, *args, text='', align='center', **kwargs):
         super().__init__(*args, **kwargs)
         self.text = text
         self.align = align
-        self.duration = duration
-        self.update_frequency = update_frequency if update_frequency is not None else self.duration
 
     def update(self, first, remaining_duration):
         text = str(self.text)
@@ -315,14 +304,11 @@ class MarketCap(App):
         'btc': font.CHAR_BTC,
     }
 
-    def __init__(self, *args, crypto='bitcoin', base_currency='usd', align='center', duration=30, update_frequency=None,
-                 **kwargs):
+    def __init__(self, *args, crypto='bitcoin', base_currency='usd', align='center', **kwargs):
         super().__init__(*args, **kwargs)
         self.crypto = crypto
         self.base_currency = base_currency
         self.align = align
-        self.duration = duration
-        self.update_frequency = update_frequency if update_frequency is not None else self.duration
 
     def update(self, first, remaining_duration):
         URL = 'https://api.coingecko.com/api/v3/coins/{}?localization=false&tickers=false&market_data=true' \
@@ -350,11 +336,9 @@ class MarketCap(App):
 
 
 class MoscowTime(App):
-    def __init__(self, *args, align='right', duration=30, update_frequency=None, **kwargs):
+    def __init__(self, *args, align='right', **kwargs):
         super().__init__(*args, **kwargs)
         self.align = align
-        self.duration = duration
-        self.update_frequency = update_frequency if update_frequency is not None else self.duration
 
     def update(self, first, remaining_duration):
         URL = 'https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd'
@@ -375,11 +359,9 @@ class MoscowTime(App):
 
 
 class Difficulty(App):
-    def __init__(self, *args, align='center', duration=30, update_frequency=None, **kwargs):
+    def __init__(self, *args, align='center', **kwargs):
         super().__init__(*args, **kwargs)
         self.align = align
-        self.duration = duration
-        self.update_frequency = update_frequency if update_frequency is not None else self.duration
 
     def update(self, first, remaining_duration):
         URL = 'https://mempool.space/api/v1/difficulty-adjustment'
@@ -395,14 +377,12 @@ class Difficulty(App):
 
 
 class Temperature(App):
-    def __init__(self, *args, align='center', city='', key='', units='', update_frequency=None, duration=30, **kwargs):
+    def __init__(self, *args, align='center', city='', key='', units='', **kwargs):
         super().__init__(*args, **kwargs)
         self.align = align
-        self.duration = duration
         self.city = city
         self.key = key
         self.units = units
-        self.update_frequency = update_frequency if update_frequency is not None else self.duration
         if city is None or key is None or units is None:
             raise ValueError('Not defined argument city:{} or key:{} or units:{}'.format(city, key, units))
 
