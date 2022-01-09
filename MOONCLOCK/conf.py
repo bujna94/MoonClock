@@ -1,4 +1,5 @@
 conf = {
+    'timezone': 'Europe/Prague',
     'apps': [
         # {
         #     'name': 'auto_contrast',
@@ -15,7 +16,6 @@ conf = {
         },
         # {
         #     'name': 'time',
-        #     'timezone': 'Europe/Prague',
         #     'duration': 600,
         #     'update_frequency': 0,
         # }

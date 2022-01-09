@@ -3,7 +3,7 @@ import time
 
 from adafruit_datetime import datetime
 
-from utils import get_current_datetime, str_rjust, timestamp_to_time, str_align, number_to_human
+from utils import str_rjust, str_align, number_to_human
 
 
 class App:
@@ -45,9 +45,6 @@ class TimeApp(App):
         self.show_seconds = show_seconds
         self.align = align
 
-        datetime = get_current_datetime(self.requests, timezone)
-
-        self.unixtime = datetime.timestamp() + datetime.utcoffset().seconds
         self.start = time.monotonic()
         self._last_hours = None
         self._last_minutes = None
@@ -55,33 +52,30 @@ class TimeApp(App):
 
     def update(self, first, remaining_duration):
         loop_start = time.monotonic()
-        delta = time.monotonic() - self.start
-        current_timestamp = self.unixtime + int(delta)
-
-        hours, minutes, seconds = timestamp_to_time(current_timestamp)
+        now = datetime.now()
 
         if first:
             self._last_hours = None
             self._last_minutes = None
             self._last_seconds = None
 
-        if not self.show_seconds and hours == self._last_hours and minutes == self._last_minutes:
-            sleep = 60 - seconds
+        if not self.show_seconds and now.hour == self._last_hours and now.minute == self._last_minutes:
+            sleep = 60 - now.second
             sleep = remaining_duration if sleep > remaining_duration else sleep
             time.sleep(sleep)  # Wait for the next minute
             return
 
         if self.show_seconds:
             string = '{}  {}  {}'.format(
-                str_rjust(str(hours), 2, '0'), str_rjust(str(minutes), 2, '0'),
-                str_rjust(str(seconds), 2, '0'),
+                str_rjust(str(now.hour), 2, '0'), str_rjust(str(now.minute), 2, '0'),
+                str_rjust(str(now.second), 2, '0'),
             )
         else:
             string = '{}  {}'.format(
-                str_rjust(str(hours), 2, '0'), str_rjust(str(minutes), 2, '0')
+                str_rjust(str(now.hour), 2, '0'), str_rjust(str(now.minute), 2, '0')
             )
 
-        print('This is current time: {}:{}:{}'.format(hours, minutes, seconds))
+        print('This is current time: {}:{}:{}'.format(now.hour, now.minute, now.second))
 
         if first:
             self.display_group.clear()
@@ -96,25 +90,25 @@ class TimeApp(App):
         self.display_group.render_string(string, center=True)
 
         if self.show_seconds:
-            if self._last_hours != hours:
+            if self._last_hours != now.hour:
                 self.display_group.displays[0].show()
-            if self._last_minutes != minutes:
+            if self._last_minutes != now.minute:
                 self.display_group.displays[2].show()
-            if self._last_seconds != seconds:
+            if self._last_seconds != now.second:
                 self.display_group.displays[4].show()
         else:
-            if self._last_hours != hours:
+            if self._last_hours != now.hour:
                 self.display_group.displays[1].show()
-            if self._last_minutes != minutes:
+            if self._last_minutes != now.minute:
                 self.display_group.displays[3].show()
         sleep = 1 - (time.monotonic() - loop_start)
 
         if sleep > 0:
             time.sleep(sleep)
 
-        self._last_hours = hours
-        self._last_minutes = minutes
-        self._last_seconds = seconds
+        self._last_hours = now.hour
+        self._last_minutes = now.minute
+        self._last_seconds = now.second
 
 
 class CryptoApp(App):
@@ -185,9 +179,9 @@ class AutoContrastApp(App):
 
         data = self.requests.get(url).json()['results']
 
-        sunrise_datetime = datetime.fromisoformat(data['sunrise'])
-        sunset_datetime = datetime.fromisoformat(data['sunset'])
-        current_datetime = get_current_datetime(self.requests, self.timezone)
+        sunrise_datetime = datetime.fromisoformat(data['sunrise']).timestamp()
+        sunset_datetime = datetime.fromisoformat(data['sunset']).timestamp()
+        current_datetime = datetime.now().timestamp()
 
         if sunset_datetime <= current_datetime:
             self.display_group.contrast(self.contrast_after_sunset)
@@ -314,8 +308,7 @@ class MarketCap(App):
         URL = 'https://api.coingecko.com/api/v3/coins/{}?localization=false&tickers=false&market_data=true' \
               '&community_data=false&developer_data=false&sparkline=false'.format(self.crypto)
 
-        market_cap = self.requests.get(URL).json(
-        )['market_data']['market_cap'][self.base_currency]
+        market_cap = self.requests.get(URL).json()['market_data']['market_cap'][self.base_currency]
 
         market, market_letter = number_to_human(market_cap)
 
