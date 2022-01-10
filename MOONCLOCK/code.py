@@ -62,18 +62,12 @@ display_group = DisplayGroup(
     [BetterSSD1306_I2C(WIDTH, HEIGHT, tca[i]) for i in range(5)])
 
 print('My MAC addr:', [hex(i) for i in wifi.radio.mac_address])
-# try to connect to any wifi from the secrets.py file
-connected = False
-wifi_networks_available = wifi.radio.start_scanning_networks()
-print('Available WiFi networks:')
-for network in wifi_networks_available:
-    print('\t{}\t\tRSSI: {}\tChannel: {}'.format(
-        str(network.ssid, 'utf-8'), network.rssi, network.channel))
-wifi.radio.stop_scanning_networks()
 
 display_group.render_string('wifi setup', center=True)
 display_group.show()
 time.sleep(1)
+
+connected = False
 
 while not connected:
     fail_count = 0
