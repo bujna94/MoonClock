@@ -119,13 +119,17 @@ requests = adafruit_requests.Session(pool, ssl.create_default_context())
 class RTC:
 
     def __init__(self):
-        timezone = conf.get('timezone', 'Europe/Prague')
-        dt = datetime.fromisoformat(requests.get('https://worldtimeapi.org/api/timezone/' + timezone).json()['datetime'])
-        self.__load_time = time.monotonic()
-        self.__datetime = datetime.fromtimestamp(dt.timestamp()) + dt.utcoffset()
+        self.timezone = conf.get('timezone', 'Europe/Prague')
+        self.__load_time = None
+        self.__datetime = None
 
     @property
     def datetime(self):
+        if not self.__datetime:
+            dt = datetime.fromisoformat(requests.get('https://worldtimeapi.org/api/timezone/' + self.timezone).json()['datetime'])
+            self.__load_time = time.monotonic()
+            self.__datetime = datetime.fromtimestamp(dt.timestamp()) + dt.utcoffset()
+
         return (self.__datetime + timedelta(seconds=time.monotonic() - self.__load_time)).timetuple()
 
 
