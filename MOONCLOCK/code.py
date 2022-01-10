@@ -120,7 +120,7 @@ class RTC:
 
     def __init__(self):
         timezone = conf.get('timezone', 'Europe/Prague')
-        dt = datetime.fromisoformat(requests.get('http://worldtimeapi.org/api/timezone/' + timezone).json()['datetime'])
+        dt = datetime.fromisoformat(requests.get('https://worldtimeapi.org/api/timezone/' + timezone).json()['datetime'])
         self.__load_time = time.monotonic()
         self.__datetime = datetime.fromtimestamp(dt.timestamp()) + dt.utcoffset()
 
