@@ -41,7 +41,6 @@ class TimeApp(App):
     def __init__(self, *args, timezone='Europe/Prague', show_seconds=False, align='center', **kwargs):
         kwargs['update_frequency'] = 0
         super().__init__(*args, **kwargs)
-        self.timezone = timezone
         self.show_seconds = show_seconds
         self.align = align
 
@@ -171,7 +170,6 @@ class AutoContrastApp(App):
         self.longitude = longitude
         self.contrast_after_sunrise = contrast_after_sunrise
         self.contrast_after_sunset = contrast_after_sunset
-        self.timezone = 'Etc/UTC'
 
     def update(self, first, remaining_duration):
         url = 'https://api.sunrise-sunset.org/json?lat={}&lng={}&date=today&formatted=0'.format(

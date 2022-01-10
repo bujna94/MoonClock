@@ -134,7 +134,8 @@ try:
     display_group.render_string('TIME  INIT', center=True)
     display_group.show()
     rtc.set_time_source(RTC())
-except Exception:
+except Exception as e:
+    traceback.print_exception(type(e), e, e.__traceback__)
     reset()
 
 print('Current datetime is', datetime.now())
