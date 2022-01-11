@@ -17,7 +17,6 @@ class App:
         used_duration = 0
         while True:
             start = time.monotonic()
-            print("Calling {} app update!".format(self.__class__.__name__))
             self.update(
                 first=(used_duration == 0),
                 remaining_duration=self.duration - used_duration
