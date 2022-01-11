@@ -70,7 +70,6 @@ while not connected:
             display_group.clear()
             display_group.render_string('{0} '.format(font.CHAR_CHECK), center=True)
             display_group.show()
-            time.sleep(1)
             connected = True
             break
         except ConnectionError:
@@ -85,11 +84,11 @@ while not connected:
         display_group.clear()
         display_group.render_string('no wifi!', center=True)
         display_group.show()
-        time.sleep(5)
+        time.sleep(2)
         display_group.clear()
         display_group.render_string('scanning..', center=True)
         display_group.show()
-        time.sleep(5)
+        time.sleep(2)
 
 pool = socketpool.SocketPool(wifi.radio)
 requests = adafruit_requests.Session(pool, ssl.create_default_context())
@@ -106,6 +105,9 @@ APPS = {
     'moscow_time': MoscowTime,
     'difficulty': Difficulty,
     'temperature': Temperature,
+    'xpub': Xpub,
+    'test': TestDisplay,
+    'lnbits_wallet_balance': LnbitsWalletBalance,
 }
 
 
