@@ -1,8 +1,7 @@
 import font
 import time
 
-from adafruit_datetime import datetime
-
+from datetime import datetime, tz, timedelta
 from utils import str_rjust, str_align, number_to_human
 
 
@@ -18,6 +17,7 @@ class App:
         used_duration = 0
         while True:
             start = time.monotonic()
+            print("Calling {} app update!".format(self.__class__.__name__))
             self.update(
                 first=(used_duration == 0),
                 remaining_duration=self.duration - used_duration
@@ -41,6 +41,7 @@ class TimeApp(App):
     def __init__(self, *args, timezone='Europe/Prague', show_seconds=False, align='center', **kwargs):
         kwargs['update_frequency'] = 0
         super().__init__(*args, **kwargs)
+        self.timezone = timezone
         self.show_seconds = show_seconds
         self.align = align
 
@@ -51,7 +52,7 @@ class TimeApp(App):
 
     def update(self, first, remaining_duration):
         loop_start = time.monotonic()
-        now = datetime.now()
+        now = datetime.now(tz(self.requests, self.timezone))
 
         if first:
             self._last_hours = None
@@ -137,7 +138,7 @@ class CryptoApp(App):
         self.align = align
 
     def update(self, first, remaining_duration):
-        URL = 'https://api.coingecko.com/api/v3/simple/price?ids={}&vs_currencies={}'.format(
+        URL = 'http://api.coingecko.com/api/v3/simple/price?ids={}&vs_currencies={}'.format(
             self.crypto, self.base_currency)
 
         price = self.requests.get(URL).json()[self.crypto][self.base_currency]
@@ -172,7 +173,7 @@ class AutoContrastApp(App):
         self.contrast_after_sunset = contrast_after_sunset
 
     def update(self, first, remaining_duration):
-        url = 'https://api.sunrise-sunset.org/json?lat={}&lng={}&date=today&formatted=0'.format(
+        url = 'http://api.sunrise-sunset.org/json?lat={}&lng={}&date=today&formatted=0'.format(
             self.latitude, self.longitude)
 
         data = self.requests.get(url).json()['results']
@@ -195,7 +196,7 @@ class BlockHeight(App):
         self.align = align
 
     def update(self, first, remaining_duration):
-        URL = 'https://mempool.space/api/blocks/tip/height'
+        URL = 'http://mempool.space/api/blocks/tip/height'
 
         height = self.requests.get(URL).content.decode()
         str_height = str(height)
@@ -219,7 +220,7 @@ class Halving(App):
         self.align = align
 
     def update(self, first, remaining_duration):
-        URL = 'https://mempool.space/api/blocks/tip/height'
+        URL = 'http://mempool.space/api/blocks/tip/height'
 
         height = self.requests.get(URL).content.decode()
         halving = str(210000 - int(height) % 210000)
@@ -242,7 +243,7 @@ class Fees(App):
         self.align = align
 
     def update(self, first, remaining_duration):
-        URL = 'https://mempool.space/api/v1/fees/recommended'
+        URL = 'http://mempool.space/api/v1/fees/recommended'
         fees = self.requests.get(URL).json()
         fastest_fee = str(fees['fastestFee'])
         hour_fee = str(fees['hourFee'])
@@ -303,7 +304,7 @@ class MarketCap(App):
         self.align = align
 
     def update(self, first, remaining_duration):
-        URL = 'https://api.coingecko.com/api/v3/coins/{}?localization=false&tickers=false&market_data=true' \
+        URL = 'http://api.coingecko.com/api/v3/coins/{}?localization=false&tickers=false&market_data=true' \
               '&community_data=false&developer_data=false&sparkline=false'.format(self.crypto)
 
         market_cap = self.requests.get(URL).json()['market_data']['market_cap'][self.base_currency]
@@ -332,7 +333,7 @@ class MoscowTime(App):
         self.align = align
 
     def update(self, first, remaining_duration):
-        URL = 'https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd'
+        URL = 'http://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd'
         price = self.requests.get(URL).json()['bitcoin']['usd']
         price = 100000000 / price
 
@@ -355,7 +356,7 @@ class Difficulty(App):
         self.align = align
 
     def update(self, first, remaining_duration):
-        URL = 'https://mempool.space/api/v1/difficulty-adjustment'
+        URL = 'http://mempool.space/api/v1/difficulty-adjustment'
 
         difficulty_adjustment = str(round(float(self.requests.get(URL).json()['difficultyChange']), 1))
 
@@ -378,7 +379,7 @@ class Temperature(App):
             raise ValueError('Not defined argument city:{} or key:{} or units:{}'.format(city, key, units))
 
     def update(self, first, remaining_duration):
-        URL = 'https://api.openweathermap.org/data/2.5/weather?q={}&appid={}&units={}'.format(
+        URL = 'http://api.openweathermap.org/data/2.5/weather?q={}&appid={}&units={}'.format(
             self.city, self.key, self.units)
 
         temp = str(round(float(self.requests.get(URL).json()['main']['temp']), 2))

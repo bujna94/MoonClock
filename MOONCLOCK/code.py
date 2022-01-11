@@ -10,7 +10,7 @@ import time
 import traceback
 import wifi
 
-from adafruit_datetime import datetime, timedelta
+from datetime import RTC
 
 from apps import *
 from display import BetterSSD1306_I2C, DisplayGroup
@@ -22,7 +22,7 @@ display_group = None
 def reset():
     if display_group:
         try:
-            display_group.render_string('RESET', center=True)
+            display_group.render_string('RESET', center=True, empty_as_transparent=True)
             display_group.show()
         except Exception:
             pass
@@ -108,30 +108,11 @@ while not connected:
 pool = socketpool.SocketPool(wifi.radio)
 requests = adafruit_requests.Session(pool, ssl.create_default_context())
 
-
-# Initialize datetime
-class RTC:
-
-    def __init__(self):
-        self.timezone = conf.get('timezone', 'Europe/Prague')
-        self.__load_time = None
-        self.__datetime = None
-
-    @property
-    def datetime(self):
-        if not self.__datetime:
-            dt = datetime.fromisoformat(requests.get('https://worldtimeapi.org/api/timezone/' + self.timezone).json()['datetime'])
-            self.__load_time = time.monotonic()
-            self.__datetime = datetime.fromtimestamp(dt.timestamp()) + dt.utcoffset()
-
-        return (self.__datetime + timedelta(seconds=time.monotonic() - self.__load_time)).timetuple()
-
-
 try:
     display_group.clear()
     display_group.render_string('TIME  INIT', center=True)
     display_group.show()
-    rtc.set_time_source(RTC())
+    rtc.set_time_source(RTC(requests))
 except Exception as e:
     traceback.print_exception(type(e), e, e.__traceback__)
     reset()
@@ -160,6 +141,7 @@ def main():
     display_group.show()
     for app_conf in conf['apps']:
         name = app_conf.pop('name')
+        print('Initializing {} app'.format(name))
 
         try:
             apps.append(APPS[name](display_group, requests, **app_conf))
@@ -173,6 +155,7 @@ def main():
     while True:
         for app in apps:
             try:
+                print('Running {} app'.format(app.__class__.__name__))
                 app.run()
             except Exception as e:
                 print('Application {} has crashed'.format(app.__class__.__name__))
