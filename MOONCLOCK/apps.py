@@ -138,7 +138,7 @@ class CryptoApp(App):
         self.decimals = decimals
 
     def update(self, first, remaining_duration):
-        URL = 'http://api.coingecko.com/api/v3/simple/price?ids={}&vs_currencies={}'.format(
+        URL = 'https://api.coingecko.com/api/v3/simple/price?ids={}&vs_currencies={}'.format(
             self.crypto, self.base_currency)
 
         price = self.requests.get(URL).json()[self.crypto][self.base_currency]
@@ -306,7 +306,7 @@ class MarketCap(App):
         self.align = align
 
     def update(self, first, remaining_duration):
-        URL = 'http://api.coingecko.com/api/v3/coins/{}?localization=false&tickers=false&market_data=true' \
+        URL = 'https://api.coingecko.com/api/v3/coins/{}?localization=false&tickers=false&market_data=true' \
               '&community_data=false&developer_data=false&sparkline=false'.format(self.crypto)
 
         market_cap = self.requests.get(URL).json()['market_data']['market_cap'][self.base_currency]
@@ -335,7 +335,7 @@ class MoscowTime(App):
         self.align = align
 
     def update(self, first, remaining_duration):
-        URL = 'http://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd'
+        URL = 'https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd'
         price = self.requests.get(URL).json()['bitcoin']['usd']
         price = 100000000 / price
 
