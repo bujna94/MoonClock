@@ -22,7 +22,7 @@ display_group = None
 def reset():
     if display_group:
         try:
-            display_group.render_string('RESET', center=True, empty_as_transparent=True)
+            display_group.render_string('RESET', center=True, empty_as_transparent=False)
             display_group.show()
         except Exception:
             pass
