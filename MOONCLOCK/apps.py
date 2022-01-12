@@ -190,7 +190,7 @@ class AutoContrastApp(App):
 
 
 class BlockHeight(App):
-    def __init__(self, *args, align='center', mempool_space_api='https://mempool.space', **kwargs):
+    def __init__(self, *args, align='center', mempool_space_api='http://mempool.space', **kwargs):
         super().__init__(*args, **kwargs)
         self.align = align
         self.mempool_space_api = mempool_space_api
@@ -239,7 +239,7 @@ class Halving(App):
 
 
 class Fees(App):
-    def __init__(self, *args, align='center', mempool_space_api='https://mempool.space', **kwargs):
+    def __init__(self, *args, align='center', mempool_space_api='http://mempool.space', **kwargs):
         super().__init__(*args, **kwargs)
         self.align = align
         self.mempool_space_api = mempool_space_api
@@ -353,7 +353,7 @@ class MoscowTime(App):
 
 
 class Difficulty(App):
-    def __init__(self, *args, align='center', mempool_space_api='https://mempool.space', **kwargs):
+    def __init__(self, *args, align='center', mempool_space_api='http://mempool.space', **kwargs):
         super().__init__(*args, **kwargs)
         self.align = align
         self.mempool_space_api = mempool_space_api
@@ -407,7 +407,7 @@ class TestDisplay(App):
 
 # EXPERIMENTAL!!!
 class Xpub(App):
-    def __init__(self, *args, align='center', xpub='', limit=10, offset=0, step_addresses=10, end_when_unused=100, btc_rpc_explorer_api='https://explorer.sats.cz', update_frequency=None, duration=1, waittime=30, **kwargs):
+    def __init__(self, *args, align='center', xpub='', limit=10, offset=0, step_addresses=10, end_when_unused=100, btc_rpc_explorer_api='http://explorer.sats.cz', update_frequency=None, duration=1, waittime=30, **kwargs):
         super().__init__(*args, **kwargs)
         self.align = align
         self.duration = duration
@@ -430,7 +430,7 @@ class Xpub(App):
             content = self.requests.get(URL).json()
             addresses = content['receiveAddresses'] + content['changeAddresses']
             for a in addresses:
-                URL_a = 'https://{}/api/address/{}'.format(self.btc_rpc_explorer_api, a)
+                URL_a = 'http://{}/api/address/{}'.format(self.btc_rpc_explorer_api, a)
                 addr_content = self.requests.get(URL_a).json()
                 address_txcount = addr_content['txHistory']['txCount']
                 address_balance = addr_content['txHistory']['balanceSat']
@@ -452,7 +452,7 @@ class Xpub(App):
 
 
 class LnbitsWalletBalance(App):
-    def __init__(self, *args, align='center', update_frequency=None, server='https://pay.sats.cz', invoicereadkey='', duration=30, **kwargs):
+    def __init__(self, *args, align='center', update_frequency=None, server='http://pay.sats.cz', invoicereadkey='', duration=30, **kwargs):
         super().__init__(*args, **kwargs)
         self.align = align
         self.duration = duration
