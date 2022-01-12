@@ -34,6 +34,10 @@ class DisplayGroup:
         for display in self.displays:
             display.fill(0)
 
+    def fill(self):
+        for display in self.displays:
+            display.fill(1)
+
     def render_string(self, string, center=False, empty_as_transparent=True):
         string = center_string(string) if center else string
 

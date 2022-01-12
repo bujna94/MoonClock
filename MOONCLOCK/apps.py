@@ -130,11 +130,12 @@ class CryptoApp(App):
         'btc': font.CHAR_BTC,
     }
 
-    def __init__(self, *args, base_currency='usd', crypto='bitcoin', align='right', **kwargs):
+    def __init__(self, *args, base_currency='usd', crypto='bitcoin', align='right', decimals=4, **kwargs):
         super().__init__(*args, **kwargs)
         self.base_currency = base_currency
         self.crypto = crypto
         self.align = align
+        self.decimals = decimals
 
     def update(self, first, remaining_duration):
         URL = 'http://api.coingecko.com/api/v3/simple/price?ids={}&vs_currencies={}'.format(
@@ -143,7 +144,7 @@ class CryptoApp(App):
         price = self.requests.get(URL).json()[self.crypto][self.base_currency]
         str_price = str(int(price) if price > 100 else price)[:7]
         if price < 1:
-            str_price = str(round(price, 4))
+            str_price = str(round(price, self.decimals))
 
         print('This is ' + self.crypto + ' price: ' + str_price)
 
@@ -160,7 +161,6 @@ class CryptoApp(App):
 
 
 class AutoContrastApp(App):
-
     def __init__(self, *args, latitude=None, longitude=None, contrast_after_sunrise=None, contrast_after_sunset=None,
                  **kwargs):
         kwargs['duration'] = 0
@@ -190,12 +190,13 @@ class AutoContrastApp(App):
 
 
 class BlockHeight(App):
-    def __init__(self, *args, align='center', **kwargs):
+    def __init__(self, *args, align='center', mempool_space_api='https://mempool.space', **kwargs):
         super().__init__(*args, **kwargs)
         self.align = align
+        self.mempool_space_api = mempool_space_api
 
     def update(self, first, remaining_duration):
-        URL = 'http://mempool.space/api/blocks/tip/height'
+        URL = '{}/api/blocks/tip/height'.format(self.mempool_space_api)
 
         height = self.requests.get(URL).content.decode()
         str_height = str(height)
@@ -214,12 +215,13 @@ class BlockHeight(App):
 
 
 class Halving(App):
-    def __init__(self, *args, align='center', **kwargs):
+    def __init__(self, *args, align='center', mempool_space_api='http://mempool.space', **kwargs):
         super().__init__(*args, **kwargs)
         self.align = align
+        self.mempool_space_api = mempool_space_api
 
     def update(self, first, remaining_duration):
-        URL = 'http://mempool.space/api/blocks/tip/height'
+        URL = '{}/api/blocks/tip/height'.format(self.mempool_space_api)
 
         height = self.requests.get(URL).content.decode()
         halving = str(210000 - int(height) % 210000)
@@ -237,17 +239,18 @@ class Halving(App):
 
 
 class Fees(App):
-    def __init__(self, *args, align='center', **kwargs):
+    def __init__(self, *args, align='center', mempool_space_api='https://mempool.space', **kwargs):
         super().__init__(*args, **kwargs)
         self.align = align
+        self.mempool_space_api = mempool_space_api
 
     def update(self, first, remaining_duration):
-        URL = 'http://mempool.space/api/v1/fees/recommended'
+        URL = '{}/api/v1/fees/recommended'.format(self.mempool_space_api)
         fees = self.requests.get(URL).json()
         fastest_fee = str(fees['fastestFee'])
         hour_fee = str(fees['hourFee'])
 
-        print('Recommended fees:', str(fees))
+        print('Recommended fees:', fastest_fee + ':' + hour_fee)
 
         if len(fastest_fee) + len(hour_fee) > 5:
             fee_string = '{}{}:{}{}'.format(font.CHAR_SATOSHI, fastest_fee, font.CHAR_SATOSHI, hour_fee)
@@ -344,18 +347,19 @@ class MoscowTime(App):
 
         self.display_group.clear()
         self.display_group.render_string(
-            str_align('{}{} {}'.format(str_hour, font.CHAR_WIDECOLON, str_min), 10, ' ', 'center'), center=False
+            str_align('{} {}{} {}{} '.format(font.CHAR_MOSCOW, str_hour, font.CHAR_WIDECOLON, str_min, font.CHAR_MOSCOW), 10, ' ', 'center'), center=False
         )
         self.display_group.show()
 
 
 class Difficulty(App):
-    def __init__(self, *args, align='center', **kwargs):
+    def __init__(self, *args, align='center', mempool_space_api='https://mempool.space', **kwargs):
         super().__init__(*args, **kwargs)
         self.align = align
+        self.mempool_space_api = mempool_space_api
 
     def update(self, first, remaining_duration):
-        URL = 'http://mempool.space/api/v1/difficulty-adjustment'
+        URL = '{}/api/v1/difficulty-adjustment'.format(self.mempool_space_api)
 
         difficulty_adjustment = str(round(float(self.requests.get(URL).json()['difficultyChange']), 1))
 
@@ -368,21 +372,105 @@ class Difficulty(App):
 
 
 class Temperature(App):
-    def __init__(self, *args, align='center', city='', key='', units='', **kwargs):
+    def __init__(self, *args, align='center', city=None, key=None, units=None, **kwargs):
         super().__init__(*args, **kwargs)
         self.align = align
         self.city = city
         self.key = key
         self.units = units
         if city is None or key is None or units is None:
+            print('Not defined argument city:{} or key:{} or units:{}'.format(city, key[:5], units))
             raise ValueError('Not defined argument city:{} or key:{} or units:{}'.format(city, key, units))
 
     def update(self, first, remaining_duration):
-        URL = 'http://api.openweathermap.org/data/2.5/weather?q={}&appid={}&units={}'.format(
-            self.city, self.key, self.units)
-
+        URL = 'http://api.openweathermap.org/data/2.5/weather?q={}&appid={}&units={}'.format(self.city, self.key, self.units)
         temp = str(round(float(self.requests.get(URL).json()['main']['temp']), 2))
-
+        print ('Current temperature in ' + self.city + ' is ' + temp)
         self.display_group.clear()
         self.display_group.render_string(str_align('{}{}'.format(temp, '°C'), 8, ' ', self.align), center=True)
+        self.display_group.show()
+
+class TestDisplay(App):
+    def __init__(self, *args, update_frequency=None, fill=1, duration=30, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.duration = duration
+        self.fill = fill
+        self.update_frequency = update_frequency if update_frequency is not None else self.duration
+
+    def update(self, first, remaining_duration):
+        if self.fill == 1:
+            self.display_group.fill()
+        else:
+            self.display_group.clear()
+        self.display_group.show()
+
+
+# EXPERIMENTAL!!!
+class Xpub(App):
+    def __init__(self, *args, align='center', xpub='', limit=10, offset=0, step_addresses=10, end_when_unused=100, btc_rpc_explorer_api='https://explorer.sats.cz', update_frequency=None, duration=1, waittime=30, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.align = align
+        self.duration = duration
+        self.waittime = waittime
+        self.xpub = xpub
+        self.limit = limit
+        self.offset = offset
+        self.end_when_unused = end_when_unused
+        self.step_addresses = step_addresses
+        self.btc_rpc_explorer_api = btc_rpc_explorer_api
+        self.update_frequency = update_frequency if update_frequency is not None else self.duration
+
+    def update(self, first, remaining_duration):
+        balance_total = 0
+        unused_addreses = 0
+        local_offset = 0
+        print ('Checking addresses...')
+        while(True):
+            URL = '{}/api/util/xyzpub/{}?limit={}&offset={}'.format(self.btc_rpc_explorer_api, self.xpub, self.step_addresses, local_offset)
+            content = self.requests.get(URL).json()
+            addresses = content['receiveAddresses'] + content['changeAddresses']
+            for a in addresses:
+                URL_a = 'https://{}/api/address/{}'.format(self.btc_rpc_explorer_api, a)
+                addr_content = self.requests.get(URL_a).json()
+                address_txcount = addr_content['txHistory']['txCount']
+                address_balance = addr_content['txHistory']['balanceSat']
+                balance_total += address_balance
+                if address_txcount == 0:
+                    unused_addreses += 1
+                else:
+                    unused_addreses = 0
+            local_offset += self.step_addresses
+            if unused_addreses > self.end_when_unused:
+                break
+        (balance_human, ext_human) = number_to_human(balance_total)
+        str_balance=str(round(float(balance_human), 2)) + str(ext_human)
+        print ('Your current balance: ' + str_balance)
+        self.display_group.clear()
+        self.display_group.render_string(str_balance, center=True)
+        self.display_group.show()
+        time.sleep(self.duration + self.waittime)
+
+
+class LnbitsWalletBalance(App):
+    def __init__(self, *args, align='center', update_frequency=None, server='https://pay.sats.cz', invoicereadkey='', duration=30, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.align = align
+        self.duration = duration
+        self.server = server
+        self.invoicereadkey = invoicereadkey
+        self.update_frequency = update_frequency if update_frequency is not None else self.duration
+
+    def update(self, first, remaining_duration):
+
+        URL = '{}/api/v1/wallet'.format(self.server)
+        try:
+            content = self.requests.get(URL, headers={"X-Api-Key": self.invoicereadkey}).json()
+            str_balance = str_align(str(content['balance'] // 1000), 10, ' ', self.align)
+        except:
+            str_balance = 'wrong key'
+
+        print ('There is ' + str_balance + ' sats available on ' + self.invoicereadkey)
+
+        self.display_group.clear()
+        self.display_group.render_string(str_balance, center=False)
         self.display_group.show()
