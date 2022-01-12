@@ -1,5 +1,3 @@
-import time
-
 from adafruit_datetime import *
 
 __tz_cache = {}
@@ -16,6 +14,7 @@ class RTC:
     @property
     def datetime(self):
         if not self.__datetime:
+            import time
             dt = datetime.fromisoformat(
                 self.requests.get('http://worldtimeapi.org/api/timezone/Etc/UTC').json()['datetime'])
             self.__load_time = time.monotonic()
