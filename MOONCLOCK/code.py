@@ -27,7 +27,9 @@ def reset():
         except Exception:
             pass
 
+    print("Reseting....")
     time.sleep(30)
+    microcontroller.on_next_reset(microcontroller.RunMode.NORMAL)
     microcontroller.reset()
 
 
@@ -107,6 +109,13 @@ while not connected:
 pool = socketpool.SocketPool(wifi.radio)
 requests = adafruit_requests.Session(pool, ssl.create_default_context())
 
+# for i in range(110000000):
+#    try:
+#        print(requests.get('https://api.sunrise-sunset.org/json?lat={}&lng={}&date=today&formatted=0', timeout=5), i)
+#    except Exception as e:
+#        print(e)
+
+
 try:
     display_group.clear()
     display_group.render_string('TIME  INIT', center=True)
@@ -151,6 +160,7 @@ def main():
             raise ValueError('Unknown app {}'.format(name))
         except Exception as e:
             print('Initialization of application {} has failed'.format(APPS[name].__name__))
+            print(r)
             traceback.print_exception(type(e), e, e.__traceback__)
 
     # Run apps
@@ -161,6 +171,7 @@ def main():
                 app.run()
             except Exception as e:
                 print('Application {} has crashed'.format(app.__class__.__name__))
+                print(r)
                 traceback.print_exception(type(e), e, e.__traceback__)
                 reset()
 

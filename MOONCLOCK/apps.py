@@ -141,7 +141,7 @@ class CryptoApp(App):
         URL = 'https://api.coingecko.com/api/v3/simple/price?ids={}&vs_currencies={}'.format(
             self.crypto, self.base_currency)
 
-        price = self.requests.get(URL).json()[self.crypto][self.base_currency]
+        price = self.requests.get(URL, timeout=5).json()[self.crypto][self.base_currency]
         str_price = str(int(price) if price > 100 else price)[:7]
         if price < 1:
             str_price = str(round(price, self.decimals))
@@ -175,7 +175,7 @@ class AutoContrastApp(App):
         url = 'http://api.sunrise-sunset.org/json?lat={}&lng={}&date=today&formatted=0'.format(
             self.latitude, self.longitude)
 
-        data = self.requests.get(url).json()['results']
+        data = self.requests.get(url, timeout=5).json()['results']
 
         sunrise_datetime = datetime.fromisoformat(data['sunrise']).timestamp()
         sunset_datetime = datetime.fromisoformat(data['sunset']).timestamp()
@@ -198,7 +198,7 @@ class BlockHeight(App):
     def update(self, first, remaining_duration):
         URL = '{}/api/blocks/tip/height'.format(self.mempool_space_api)
 
-        height = self.requests.get(URL).content.decode()
+        height = self.requests.get(URL, timeout=5).content.decode()
         str_height = str(height)
 
         print('This is current block height: ' + str_height)
@@ -223,7 +223,7 @@ class Halving(App):
     def update(self, first, remaining_duration):
         URL = '{}/api/blocks/tip/height'.format(self.mempool_space_api)
 
-        height = self.requests.get(URL).content.decode()
+        height = self.requests.get(URL, timeout=5).content.decode()
         halving = str(210000 - int(height) % 210000)
 
         print('Halving in: ' + halving)
@@ -246,7 +246,7 @@ class Fees(App):
 
     def update(self, first, remaining_duration):
         URL = '{}/api/v1/fees/recommended'.format(self.mempool_space_api)
-        fees = self.requests.get(URL).json()
+        fees = self.requests.get(URL, timeout=5).json()
         fastest_fee = str(fees['fastestFee'])
         hour_fee = str(fees['hourFee'])
 
@@ -309,7 +309,7 @@ class MarketCap(App):
         URL = 'https://api.coingecko.com/api/v3/coins/{}?localization=false&tickers=false&market_data=true' \
               '&community_data=false&developer_data=false&sparkline=false'.format(self.crypto)
 
-        market_cap = self.requests.get(URL).json()['market_data']['market_cap'][self.base_currency]
+        market_cap = self.requests.get(URL, timeout=5).json()['market_data']['market_cap'][self.base_currency]
 
         market, market_letter = number_to_human(market_cap)
 
@@ -336,7 +336,7 @@ class MoscowTime(App):
 
     def update(self, first, remaining_duration):
         URL = 'https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd'
-        price = self.requests.get(URL).json()['bitcoin']['usd']
+        price = self.requests.get(URL, timeout=5).json()['bitcoin']['usd']
         price = 100000000 / price
 
         str_price = str(int(price))
@@ -361,7 +361,7 @@ class Difficulty(App):
     def update(self, first, remaining_duration):
         URL = '{}/api/v1/difficulty-adjustment'.format(self.mempool_space_api)
 
-        difficulty_adjustment = str(round(float(self.requests.get(URL).json()['difficultyChange']), 1))
+        difficulty_adjustment = str(round(float(self.requests.get(URL, timeout=5).json()['difficultyChange']), 1))
 
         self.display_group.clear()
         self.display_group.render_string(
@@ -384,7 +384,7 @@ class Temperature(App):
 
     def update(self, first, remaining_duration):
         URL = 'http://api.openweathermap.org/data/2.5/weather?q={}&appid={}&units={}'.format(self.city, self.key, self.units)
-        temp = str(round(float(self.requests.get(URL).json()['main']['temp']), 2))
+        temp = str(round(float(self.requests.get(URL, timeout=5).json()['main']['temp']), 2))
         print ('Current temperature in ' + self.city + ' is ' + temp)
         self.display_group.clear()
         self.display_group.render_string(str_align('{}{}'.format(temp, '°C'), 8, ' ', self.align), center=True)
@@ -427,11 +427,11 @@ class Xpub(App):
         print ('Checking addresses...')
         while(True):
             URL = '{}/api/util/xyzpub/{}?limit={}&offset={}'.format(self.btc_rpc_explorer_api, self.xpub, self.step_addresses, local_offset)
-            content = self.requests.get(URL).json()
+            content = self.requests.get(URL, timeout=5).json()
             addresses = content['receiveAddresses'] + content['changeAddresses']
             for a in addresses:
                 URL_a = '{}/api/address/{}'.format(self.btc_rpc_explorer_api, a)
-                addr_content = self.requests.get(URL_a).json()
+                addr_content = self.requests.get(URL_a, timeout=5).json()
                 address_txcount = addr_content['txHistory']['txCount']
                 address_balance = addr_content['txHistory']['balanceSat']
                 balance_total += address_balance
@@ -464,7 +464,7 @@ class LnbitsWalletBalance(App):
 
         URL = '{}/api/v1/wallet'.format(self.server)
         try:
-            content = self.requests.get(URL, headers={"X-Api-Key": self.invoicereadkey}).json()
+            content = self.requests.get(URL, headers={"X-Api-Key": self.invoicereadkey}, timeout=5).json()
             str_balance = str_align(str(content['balance'] // 1000), 10, ' ', self.align)
         except:
             str_balance = 'wrong key'
