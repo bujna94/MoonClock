@@ -160,7 +160,7 @@ def main():
             raise ValueError('Unknown app {}'.format(name))
         except Exception as e:
             print('Initialization of application {} has failed'.format(APPS[name].__name__))
-            print(r)
+            print(e)
             traceback.print_exception(type(e), e, e.__traceback__)
 
     # Run apps
@@ -171,6 +171,7 @@ def main():
                 app.run()
             except Exception as e:
                 print('Application {} has crashed'.format(app.__class__.__name__))
+                print(e)
                 traceback.print_exception(type(e), e, e.__traceback__)
                 reset()
 
