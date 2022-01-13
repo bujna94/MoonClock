@@ -1,12 +1,12 @@
 import font
 import time
 
-from adafruit_datetime import datetime
+from datetime import datetime, tz, timedelta
+from utils import str_rjust, str_align, number_to_human
 
-from utils import get_current_datetime, str_rjust, timestamp_to_time, str_align, number_to_human
 
 class App:
-    def __init__(self, display_group, requests, duration=0, align='right', update_frequency=None):
+    def __init__(self, display_group, requests, align='right', duration=30, update_frequency=None):
         self.display_group = display_group
         self.requests = requests
         self.duration = duration
@@ -37,17 +37,13 @@ class App:
 
 
 class TimeApp(App):
-    def __init__(self, *args, timezone='Europe/Prague', show_seconds=False, update_frequency=1, duration=30, align='center', **kwargs):
+    def __init__(self, *args, timezone='Europe/Prague', show_seconds=False, align='center', **kwargs):
+        kwargs['update_frequency'] = 0
         super().__init__(*args, **kwargs)
         self.timezone = timezone
         self.show_seconds = show_seconds
         self.align = align
-        self.update_frequency = update_frequency
-        self.duration = duration
 
-        datetime = get_current_datetime(self.requests, timezone)
-
-        self.unixtime = datetime.timestamp() + datetime.utcoffset().seconds
         self.start = time.monotonic()
         self._last_hours = None
         self._last_minutes = None
@@ -55,33 +51,30 @@ class TimeApp(App):
 
     def update(self, first, remaining_duration):
         loop_start = time.monotonic()
-        delta = time.monotonic() - self.start
-        current_timestamp = self.unixtime + int(delta)
-
-        hours, minutes, seconds = timestamp_to_time(current_timestamp)
+        now = datetime.now(tz(self.requests, self.timezone))
 
         if first:
             self._last_hours = None
             self._last_minutes = None
             self._last_seconds = None
 
-        if not self.show_seconds and hours == self._last_hours and minutes == self._last_minutes:
-            sleep = 60 - seconds
+        if not self.show_seconds and now.hour == self._last_hours and now.minute == self._last_minutes:
+            sleep = 60 - now.second
             sleep = remaining_duration if sleep > remaining_duration else sleep
             time.sleep(sleep)  # Wait for the next minute
             return
 
         if self.show_seconds:
             string = '{}  {}  {}'.format(
-                str_rjust(str(hours), 2, '0'), str_rjust(str(minutes), 2, '0'),
-                str_rjust(str(seconds), 2, '0'),
+                str_rjust(str(now.hour), 2, '0'), str_rjust(str(now.minute), 2, '0'),
+                str_rjust(str(now.second), 2, '0'),
             )
         else:
             string = '{}  {}'.format(
-                str_rjust(str(hours), 2, '0'), str_rjust(str(minutes), 2, '0')
+                str_rjust(str(now.hour), 2, '0'), str_rjust(str(now.minute), 2, '0')
             )
 
-        print('This is current time: {}:{}:{}'.format(hours, minutes, seconds))
+        print('This is current time: {}:{}:{}'.format(now.hour, now.minute, now.second))
 
         if first:
             self.display_group.clear()
@@ -96,25 +89,25 @@ class TimeApp(App):
         self.display_group.render_string(string, center=True)
 
         if self.show_seconds:
-            if self._last_hours != hours:
+            if self._last_hours != now.hour:
                 self.display_group.displays[0].show()
-            if self._last_minutes != minutes:
+            if self._last_minutes != now.minute:
                 self.display_group.displays[2].show()
-            if self._last_seconds != seconds:
+            if self._last_seconds != now.second:
                 self.display_group.displays[4].show()
         else:
-            if self._last_hours != hours:
+            if self._last_hours != now.hour:
                 self.display_group.displays[1].show()
-            if self._last_minutes != minutes:
+            if self._last_minutes != now.minute:
                 self.display_group.displays[3].show()
         sleep = 1 - (time.monotonic() - loop_start)
 
         if sleep > 0:
             time.sleep(sleep)
 
-        self._last_hours = hours
-        self._last_minutes = minutes
-        self._last_seconds = seconds
+        self._last_hours = now.hour
+        self._last_minutes = now.minute
+        self._last_seconds = now.second
 
 
 class CryptoApp(App):
@@ -137,14 +130,12 @@ class CryptoApp(App):
         'btc': font.CHAR_BTC,
     }
 
-    def __init__(self, *args, base_currency='usd', crypto='bitcoin', align='right', decimals=4, update_frequency=None, duration=30, **kwargs):
+    def __init__(self, *args, base_currency='usd', crypto='bitcoin', align='right', decimals=4, **kwargs):
         super().__init__(*args, **kwargs)
         self.base_currency = base_currency
         self.crypto = crypto
         self.align = align
-        self.duration = duration
         self.decimals = decimals
-        self.update_frequency = update_frequency if update_frequency is not None else self.duration
 
     def update(self, first, remaining_duration):
         URL = 'https://api.coingecko.com/api/v3/simple/price?ids={}&vs_currencies={}'.format(
@@ -170,25 +161,25 @@ class CryptoApp(App):
 
 
 class AutoContrastApp(App):
-    def __init__(self, *args, latitude=None, longitude=None, contrast_after_sunrise=None, duration=0, contrast_after_sunset=None, **kwargs):
+    def __init__(self, *args, latitude=None, longitude=None, contrast_after_sunrise=None, contrast_after_sunset=None,
+                 **kwargs):
+        kwargs['duration'] = 0
         super().__init__(*args, **kwargs)
 
         self.latitude = latitude
         self.longitude = longitude
         self.contrast_after_sunrise = contrast_after_sunrise
         self.contrast_after_sunset = contrast_after_sunset
-        self.timezone = 'Etc/UTC'
-        self.duration = duration
 
     def update(self, first, remaining_duration):
-        url = 'https://api.sunrise-sunset.org/json?lat={}&lng={}&date=today&formatted=0'.format(
+        url = 'http://api.sunrise-sunset.org/json?lat={}&lng={}&date=today&formatted=0'.format(
             self.latitude, self.longitude)
 
         data = self.requests.get(url).json()['results']
 
-        sunrise_datetime = datetime.fromisoformat(data['sunrise'])
-        sunset_datetime = datetime.fromisoformat(data['sunset'])
-        current_datetime = get_current_datetime(self.requests, self.timezone)
+        sunrise_datetime = datetime.fromisoformat(data['sunrise']).timestamp()
+        sunset_datetime = datetime.fromisoformat(data['sunset']).timestamp()
+        current_datetime = datetime.now().timestamp()
 
         if sunset_datetime <= current_datetime:
             self.display_group.contrast(self.contrast_after_sunset)
@@ -199,12 +190,10 @@ class AutoContrastApp(App):
 
 
 class BlockHeight(App):
-    def __init__(self, *args, align='center', mempool_space_api='https://mempool.space', duration=30, update_frequency=None, **kwargs):
+    def __init__(self, *args, align='center', mempool_space_api='https://mempool.space', **kwargs):
         super().__init__(*args, **kwargs)
         self.align = align
-        self.duration = duration
         self.mempool_space_api = mempool_space_api
-        self.update_frequency = update_frequency if update_frequency is not None else self.duration
 
     def update(self, first, remaining_duration):
         URL = '{}/api/blocks/tip/height'.format(self.mempool_space_api)
@@ -226,12 +215,10 @@ class BlockHeight(App):
 
 
 class Halving(App):
-    def __init__(self, *args, align='center', mempool_space_api='https://mempool.space', duration=30, update_frequency=None, **kwargs):
+    def __init__(self, *args, align='center', mempool_space_api='https://mempool.space', **kwargs):
         super().__init__(*args, **kwargs)
         self.align = align
-        self.duration = duration
         self.mempool_space_api = mempool_space_api
-        self.update_frequency = update_frequency if update_frequency is not None else self.duration
 
     def update(self, first, remaining_duration):
         URL = '{}/api/blocks/tip/height'.format(self.mempool_space_api)
@@ -252,12 +239,10 @@ class Halving(App):
 
 
 class Fees(App):
-    def __init__(self, *args, align='center', mempool_space_api='https://mempool.space', duration=30, update_frequency=None, **kwargs):
+    def __init__(self, *args, align='center', mempool_space_api='https://mempool.space', **kwargs):
         super().__init__(*args, **kwargs)
         self.align = align
-        self.duration = duration
         self.mempool_space_api = mempool_space_api
-        self.update_frequency = update_frequency if update_frequency is not None else self.duration
 
     def update(self, first, remaining_duration):
         URL = '{}/api/v1/fees/recommended'.format(self.mempool_space_api)
@@ -280,12 +265,10 @@ class Fees(App):
 
 
 class Text(App):
-    def __init__(self, *args, text='', align='center', duration=30, update_frequency=None, **kwargs):
+    def __init__(self, *args, text='', align='center', **kwargs):
         super().__init__(*args, **kwargs)
         self.text = text
         self.align = align
-        self.duration = duration
-        self.update_frequency = update_frequency if update_frequency is not None else self.duration
 
     def update(self, first, remaining_duration):
         text = str(self.text)
@@ -316,21 +299,17 @@ class MarketCap(App):
         'btc': font.CHAR_BTC,
     }
 
-    def __init__(self, *args, crypto='bitcoin', base_currency='usd', align='center', duration=30, update_frequency=None,
-                 **kwargs):
+    def __init__(self, *args, crypto='bitcoin', base_currency='usd', align='center', **kwargs):
         super().__init__(*args, **kwargs)
         self.crypto = crypto
         self.base_currency = base_currency
         self.align = align
-        self.duration = duration
-        self.update_frequency = update_frequency if update_frequency is not None else self.duration
 
     def update(self, first, remaining_duration):
         URL = 'https://api.coingecko.com/api/v3/coins/{}?localization=false&tickers=false&market_data=true' \
               '&community_data=false&developer_data=false&sparkline=false'.format(self.crypto)
 
-        market_cap = self.requests.get(URL).json(
-        )['market_data']['market_cap'][self.base_currency]
+        market_cap = self.requests.get(URL).json()['market_data']['market_cap'][self.base_currency]
 
         market, market_letter = number_to_human(market_cap)
 
@@ -351,11 +330,9 @@ class MarketCap(App):
 
 
 class MoscowTime(App):
-    def __init__(self, *args, align='right', duration=30, update_frequency=None, **kwargs):
+    def __init__(self, *args, align='right', **kwargs):
         super().__init__(*args, **kwargs)
         self.align = align
-        self.duration = duration
-        self.update_frequency = update_frequency if update_frequency is not None else self.duration
 
     def update(self, first, remaining_duration):
         URL = 'https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd'
@@ -376,12 +353,10 @@ class MoscowTime(App):
 
 
 class Difficulty(App):
-    def __init__(self, *args, align='center', mempool_space_api='https://mempool.space', duration=30, update_frequency=None, **kwargs):
+    def __init__(self, *args, align='center', mempool_space_api='https://mempool.space', **kwargs):
         super().__init__(*args, **kwargs)
         self.align = align
-        self.duration = duration
         self.mempool_space_api = mempool_space_api
-        self.update_frequency = update_frequency if update_frequency is not None else self.duration
 
     def update(self, first, remaining_duration):
         URL = '{}/api/v1/difficulty-adjustment'.format(self.mempool_space_api)
@@ -397,21 +372,18 @@ class Difficulty(App):
 
 
 class Temperature(App):
-    def __init__(self, *args, align='center', city=None, key=None, units=None, update_frequency=None, duration=30, **kwargs):
+    def __init__(self, *args, align='center', city=None, key=None, units=None, **kwargs):
         super().__init__(*args, **kwargs)
         self.align = align
-        self.duration = duration
         self.city = city
         self.key = key
         self.units = units
-        self.update_frequency = update_frequency if update_frequency is not None else self.duration
         if city is None or key is None or units is None:
-            print ('Not defined argument city:{} or key:{} or units:{}'.format(city, key[:5], units))
-            raise ValueError ('Not defined argument city:{} or key:{} or units:{}'.format(city, key, units))
-
+            print('Not defined argument city:{} or key:{} or units:{}'.format(city, key[:5], units))
+            raise ValueError('Not defined argument city:{} or key:{} or units:{}'.format(city, key, units))
 
     def update(self, first, remaining_duration):
-        URL = 'https://api.openweathermap.org/data/2.5/weather?q={}&appid={}&units={}'.format(self.city, self.key, self.units)
+        URL = 'http://api.openweathermap.org/data/2.5/weather?q={}&appid={}&units={}'.format(self.city, self.key, self.units)
         temp = str(round(float(self.requests.get(URL).json()['main']['temp']), 2))
         print ('Current temperature in ' + self.city + ' is ' + temp)
         self.display_group.clear()
@@ -431,7 +403,6 @@ class TestDisplay(App):
         else:
             self.display_group.clear()
         self.display_group.show()
-
 
 
 # EXPERIMENTAL!!!
@@ -459,7 +430,7 @@ class Xpub(App):
             content = self.requests.get(URL).json()
             addresses = content['receiveAddresses'] + content['changeAddresses']
             for a in addresses:
-                URL_a = 'https://{}/api/address/{}'.format(self.btc_rpc_explorer_api, a)
+                URL_a = '{}/api/address/{}'.format(self.btc_rpc_explorer_api, a)
                 addr_content = self.requests.get(URL_a).json()
                 address_txcount = addr_content['txHistory']['txCount']
                 address_balance = addr_content['txHistory']['balanceSat']
@@ -478,6 +449,7 @@ class Xpub(App):
         self.display_group.render_string(str_balance, center=True)
         self.display_group.show()
         time.sleep(self.duration + self.waittime)
+
 
 class LnbitsWalletBalance(App):
     def __init__(self, *args, align='center', update_frequency=None, server='https://pay.sats.cz', invoicereadkey='', duration=30, **kwargs):
@@ -498,7 +470,7 @@ class LnbitsWalletBalance(App):
             str_balance = 'wrong key'
 
         print ('There is ' + str_balance + ' sats available on ' + self.invoicereadkey)
-        
+
         self.display_group.clear()
         self.display_group.render_string(str_balance, center=False)
         self.display_group.show()

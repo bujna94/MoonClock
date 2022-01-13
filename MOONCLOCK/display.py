@@ -55,8 +55,11 @@ class DisplayGroup:
                 display.render_character(character, self.SECOND_CHARACTER_X_OFFSET)
 
     def contrast(self, contrast):
-        for display in self.displays:
-            display.contrast(contrast)
+        if 0 <= contrast <= 0xFF:
+            for display in self.displays:
+                display.contrast(contrast)
+        else:
+            raise ValueError('Invalid contrast value')
 
     def show(self):
         for display in self.displays:

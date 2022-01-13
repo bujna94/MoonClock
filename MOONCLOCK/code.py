@@ -2,14 +2,34 @@ import adafruit_requests
 import adafruit_tca9548a
 import board
 import busio
-import traceback
+import microcontroller
+import rtc
 import socketpool
 import ssl
-import supervisor
+import time
+import traceback
 import wifi
+
+from datetime import RTC
 
 from apps import *
 from display import BetterSSD1306_I2C, DisplayGroup
+
+
+display_group = None
+
+
+def reset():
+    if display_group:
+        try:
+            display_group.render_string('RESET', center=True, empty_as_transparent=False)
+            display_group.show()
+        except Exception:
+            pass
+
+    time.sleep(30)
+    microcontroller.reset()
+
 
 # Get wifi details and more from a secrets.py file
 try:
@@ -42,18 +62,12 @@ display_group = DisplayGroup(
     [BetterSSD1306_I2C(WIDTH, HEIGHT, tca[i]) for i in range(5)])
 
 print('My MAC addr:', [hex(i) for i in wifi.radio.mac_address])
-# try to connect to any wifi from the secrets.py file
-connected = False
-wifi_networks_available = wifi.radio.start_scanning_networks()
-print('Available WiFi networks:')
-for network in wifi_networks_available:
-    print('\t{}\t\tRSSI: {}\tChannel: {}'.format(
-        str(network.ssid, 'utf-8'), network.rssi, network.channel))
-wifi.radio.stop_scanning_networks()
 
 display_group.render_string('wifi setup', center=True)
 display_group.show()
-time.sleep(5)
+time.sleep(1)
+
+connected = False
 
 while not connected:
     fail_count = 0
@@ -93,6 +107,15 @@ while not connected:
 pool = socketpool.SocketPool(wifi.radio)
 requests = adafruit_requests.Session(pool, ssl.create_default_context())
 
+try:
+    display_group.clear()
+    display_group.render_string('TIME  INIT', center=True)
+    display_group.show()
+    rtc.set_time_source(RTC(requests))
+except Exception as e:
+    traceback.print_exception(type(e), e, e.__traceback__)
+    reset()
+
 APPS = {
     'auto_contrast': AutoContrastApp,
     'crypto': CryptoApp,
@@ -115,26 +138,31 @@ def main():
     apps = []
 
     # Initialize all apps
+    display_group.clear()
+    display_group.render_string('APPS  INIT', center=True)
+    display_group.show()
     for app_conf in conf['apps']:
         name = app_conf.pop('name')
+        print('Initializing {} app'.format(name))
 
         try:
             apps.append(APPS[name](display_group, requests, **app_conf))
         except KeyError:
             raise ValueError('Unknown app {}'.format(name))
-        except Exception:
+        except Exception as e:
             print('Initialization of application {} has failed'.format(APPS[name].__name__))
+            traceback.print_exception(type(e), e, e.__traceback__)
 
     # Run apps
     while True:
         for app in apps:
             try:
+                print('Running {} app'.format(app.__class__.__name__))
                 app.run()
             except Exception as e:
                 print('Application {} has crashed'.format(app.__class__.__name__))
                 traceback.print_exception(type(e), e, e.__traceback__)
-                time.sleep(1)
-                supervisor.reload()
+                reset()
 
 
 if __name__ == '__main__':
