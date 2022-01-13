@@ -171,7 +171,6 @@ def main():
                 app.run()
             except Exception as e:
                 print('Application {} has crashed'.format(app.__class__.__name__))
-                print(r)
                 traceback.print_exception(type(e), e, e.__traceback__)
                 reset()
 
