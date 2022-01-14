@@ -27,7 +27,7 @@ def reset():
         except Exception:
             pass
 
-    print("Reseting....")
+    print("Resetting....")
     time.sleep(30)
     microcontroller.on_next_reset(microcontroller.RunMode.NORMAL)
     microcontroller.reset()
