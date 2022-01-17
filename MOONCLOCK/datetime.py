@@ -15,8 +15,8 @@ class RTC:
     def datetime(self):
         import time
         if not self.__datetime:
-            dt = datetime.fromisoformat(
-                self.requests.get('https://www.timeapi.io/api/TimeZone/zone?timeZone=etc/utc').json()['currentLocalTime'])
+            dt = datetime.fromisoformat(self.requests.get('https://www.timeapi.io/api/TimeZone/zone?timeZone=etc/utc')
+                                        .json()['currentLocalTime'].split('.')[0])
             self.__load_time = time.monotonic()
             self.__datetime = datetime.fromtimestamp(dt.timestamp()) + dt.utcoffset()
 
