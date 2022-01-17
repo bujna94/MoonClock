@@ -17,5 +17,7 @@ class Session(Session):
                 print(e)
                 if retry_i == max_retry_count:
                     raise
+                else:
+                    print('Retrying request...')
 
                 time.sleep(sleep_between_retries)
