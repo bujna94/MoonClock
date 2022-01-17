@@ -18,7 +18,7 @@ class RTC:
             dt = datetime.fromisoformat(self.requests.get('https://www.timeapi.io/api/TimeZone/zone?timeZone=etc/utc')
                                         .json()['currentLocalTime'].split('.')[0])
             self.__load_time = time.monotonic()
-            self.__datetime = datetime.fromtimestamp(dt.timestamp()) + dt.utcoffset()
+            self.__datetime = datetime.fromtimestamp(dt.timestamp())
 
         return (self.__datetime + timedelta(seconds=time.monotonic() - self.__load_time)).timetuple()
 
