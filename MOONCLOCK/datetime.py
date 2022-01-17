@@ -30,7 +30,7 @@ class datetime(datetime):
 
 
 def tz(requests, tzname):
-    if not tzname in __tz_cache:
+    if tzname not in __tz_cache:
         offset = requests.get('http://worldtimeapi.org/api/timezone/{}'.format(tzname)).json()['raw_offset']
 
         class dynamictimezone(timezone):
