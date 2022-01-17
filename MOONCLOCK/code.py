@@ -1,4 +1,4 @@
-import adafruit_requests
+import requests
 import adafruit_tca9548a
 import board
 import busio
@@ -107,20 +107,13 @@ while not connected:
         time.sleep(2)
 
 pool = socketpool.SocketPool(wifi.radio)
-requests = adafruit_requests.Session(pool, ssl.create_default_context())
-
-# for i in range(110000000):
-#    try:
-#        print(requests.get('https://api.sunrise-sunset.org/json?lat={}&lng={}&date=today&formatted=0', timeout=5), i)
-#    except Exception as e:
-#        print(e)
-
+requests_ = requests.Session(pool, ssl.create_default_context())
 
 try:
     display_group.clear()
     display_group.render_string('TIME  INIT', center=True)
     display_group.show()
-    rtc.set_time_source(RTC(requests))
+    rtc.set_time_source(RTC(requests_))
 except Exception as e:
     traceback.print_exception(type(e), e, e.__traceback__)
     reset()
@@ -155,7 +148,7 @@ def main():
         print('Initializing {} app'.format(name))
 
         try:
-            apps.append(APPS[name](display_group, requests, **app_conf))
+            apps.append(APPS[name](display_group, requests_, **app_conf))
         except KeyError:
             raise ValueError('Unknown app {}'.format(name))
         except Exception as e:

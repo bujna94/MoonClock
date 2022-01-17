@@ -16,7 +16,7 @@ class RTC:
         import time
         if not self.__datetime:
             dt = datetime.fromisoformat(
-                self.requests.get('http://worldtimeapi.org/api/timezone/Etc/UTC', timeout=5).json()['datetime'])
+                self.requests.get('http://worldtimeapi.org/api/timezone/Etc/UTC').json()['datetime'])
             self.__load_time = time.monotonic()
             self.__datetime = datetime.fromtimestamp(dt.timestamp()) + dt.utcoffset()
 
@@ -29,19 +29,15 @@ class datetime(datetime):
         return cls._fromtimestamp(timestamp, False, tz)
 
 
-def tz(requests, timezone):
-    if not timezone in __tz_cache:
-        offset = requests.get('http://worldtimeapi.org/api/timezone/{}'.format(timezone), timeout=5).json()['raw_offset']
+def tz(requests, tzname):
+    if not tzname in __tz_cache:
+        offset = requests.get('http://worldtimeapi.org/api/timezone/{}'.format(tzname)).json()['raw_offset']
 
-        class dynamictzinfo(tzinfo):
-            _offset = timedelta(seconds=offset)
+        class dynamictimezone(timezone):
 
-            def utcoffset(self, dt):
-                return self._offset
+            def __new__(cls):
+                return super().__new__(cls, timedelta(seconds=offset), name=tzname)
 
-            def tzname(self, dt):
-                return timezone
+        __tz_cache[tzname] = dynamictimezone()
 
-        __tz_cache[timezone] = dynamictzinfo()
-
-    return __tz_cache[timezone]
+    return __tz_cache[tzname]
