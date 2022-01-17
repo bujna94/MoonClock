@@ -14,7 +14,7 @@ class Session(Session):
             retry_i += 1
             try:
                 return super().request(*args, **kwargs)
-            except RuntimeError as e:
+            except Exception as e:
                 print('request exception:', e)
                 if retry_i == max_retry_count:
                     raise
