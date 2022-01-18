@@ -15,10 +15,10 @@ class RTC:
     def datetime(self):
         import time
         if not self.__datetime:
-            dt = datetime.fromisoformat(
-                self.requests.get('http://worldtimeapi.org/api/timezone/Etc/UTC').json()['datetime'])
+            dt = datetime.fromisoformat(self.requests.get('https://www.timeapi.io/api/TimeZone/zone?timeZone=etc/utc')
+                                        .json()['currentLocalTime'].split('.')[0])
             self.__load_time = time.monotonic()
-            self.__datetime = datetime.fromtimestamp(dt.timestamp()) + dt.utcoffset()
+            self.__datetime = datetime.fromtimestamp(dt.timestamp())
 
         return (self.__datetime + timedelta(seconds=time.monotonic() - self.__load_time)).timetuple()
 
@@ -29,19 +29,15 @@ class datetime(datetime):
         return cls._fromtimestamp(timestamp, False, tz)
 
 
-def tz(requests, timezone):
-    if not timezone in __tz_cache:
-        offset = requests.get('http://worldtimeapi.org/api/timezone/{}'.format(timezone)).json()['raw_offset']
+def tz(requests, tzname):
+    if tzname not in __tz_cache:
+        offset = requests.get('https://www.timeapi.io/api/TimeZone/zone?timeZone={}'.format(tzname)).json()['currentUtcOffset']['seconds']
 
-        class dynamictzinfo(tzinfo):
-            _offset = timedelta(seconds=offset)
+        class dynamictimezone(timezone):
 
-            def utcoffset(self, dt):
-                return self._offset
+            def __new__(cls):
+                return super().__new__(cls, timedelta(seconds=offset), name=tzname)
 
-            def tzname(self, dt):
-                return timezone
+        __tz_cache[tzname] = dynamictimezone()
 
-        __tz_cache[timezone] = dynamictzinfo()
-
-    return __tz_cache[timezone]
+    return __tz_cache[tzname]
