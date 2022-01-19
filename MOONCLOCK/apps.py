@@ -130,7 +130,7 @@ class CryptoApp(App):
         'btc': font.CHAR_BTC,
     }
 
-    def __init__(self, *args, base_currency='usd', crypto='bitcoin', align='right', decimals=4, **kwargs):
+    def __init__(self, *args, base_currency='usd', crypto='bitcoin', align='right', decimals=None, **kwargs):
         super().__init__(*args, **kwargs)
         self.base_currency = base_currency
         self.crypto = crypto
@@ -138,13 +138,17 @@ class CryptoApp(App):
         self.decimals = decimals
 
     def update(self, first, remaining_duration):
-        URL = 'https://api.coingecko.com/api/v3/simple/price?ids={}&vs_currencies={}'.format(
-            self.crypto, self.base_currency)
-
+        URL = 'https://api.coingecko.com/api/v3/simple/price?ids={}&vs_currencies={}'.format(self.crypto, self.base_currency)
         price = self.requests.get(URL).json()[self.crypto][self.base_currency]
-        str_price = str(int(price) if price > 100 else price)[:7]
-        if price < 1:
-            str_price = str(round(price, self.decimals))
+
+        if self.decimals is not None:
+            str_price = ('{:.' + str(self.decimals) + 'f}').format(price)
+        elif (self.decimals is None) and (price < 1):
+            str_price = ('{:.2f}').format(price)
+        elif (self.decimals is None) and (price < 10):
+            str_price = ('{:.1f}').format(price)
+        else:
+            str_price = str(int(price))
 
         print('This is ' + self.crypto + ' price: ' + str_price)
 
@@ -442,7 +446,7 @@ class Xpub(App):
             local_offset += self.step_addresses
             if unused_addreses > self.end_when_unused:
                 break
-        (balance_human, ext_human) = number_to_human(balance_total)
+        balance_human, ext_human = number_to_human(balance_total)
         str_balance=str(round(float(balance_human), 2)) + str(ext_human)
         print ('Your current balance: ' + str_balance)
         self.display_group.clear()
