@@ -143,10 +143,10 @@ class CryptoApp(App):
 
         if self.decimals is not None:
             str_price = ('{:.' + str(self.decimals) + 'f}').format(price)
-        elif (self.decimals is None) and (price < 1):
-            str_price = ('{:.2f}').format(price)
-        elif (self.decimals is None) and (price < 10):
-            str_price = ('{:.1f}').format(price)
+        elif self.decimals is None and price < 1:
+            str_price = '{:.2f}'.format(price)
+        elif self.decimals is None and price < 10:
+            str_price = '{:.1f}'.format(price)
         else:
             str_price = str(int(price))
 
@@ -393,6 +393,7 @@ class Temperature(App):
         self.display_group.clear()
         self.display_group.render_string(str_align('{}{}'.format(temp, '°C'), 8, ' ', self.align), center=True)
         self.display_group.show()
+
 
 class TestDisplay(App):
     def __init__(self, *args, update_frequency=None, fill=1, duration=30, **kwargs):
