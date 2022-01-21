@@ -120,6 +120,8 @@ class CryptoApp(App):
         'litecoin': font.CHAR_LTC,
         'polkadot': font.CHAR_POLKADOT,
         'kusama': font.CHAR_KSM,
+        'thorchain': font.CHAR_THORCHAIN,
+        'verasity': font.CHAR_VERASITY,
     }
 
     BASE_CURRENCY_CHARACTER_MAP = {

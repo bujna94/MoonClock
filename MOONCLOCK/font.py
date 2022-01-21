@@ -22,6 +22,8 @@ CHAR_DELTA = '\ue011'
 CHAR_SIGMA = '\ue012'
 CHAR_MOSCOW = '\ue013'
 CHAR_MONEY_BAG_SAT = '\ue014'
+CHAR_THORCHAIN = '\ue015'
+CHAR_VERASITY = '\ue016'
 
 SYMBOLS_MAP = {
     # Numbers
@@ -122,6 +124,8 @@ SYMBOLS_MAP = {
     ord(CHAR_LTC): symbols.LTC,
     ord(CHAR_POLKADOT): symbols.POLKADOT,
     ord(CHAR_KSM): symbols.KSM,
+    ord(CHAR_THORCHAIN): symbols.THORCHAIN,
+    ord(CHAR_VERASITY): symbols.VERASITY,
 
     # Other logos, characters
     ord(CHAR_WIDECOLON): symbols.WIDECOLON,
