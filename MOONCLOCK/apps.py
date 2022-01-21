@@ -120,6 +120,9 @@ class CryptoApp(App):
         'litecoin': font.CHAR_LTC,
         'polkadot': font.CHAR_POLKADOT,
         'kusama': font.CHAR_KSM,
+        'thorchain': font.CHAR_THORCHAIN,
+        'verasity': font.CHAR_VERASITY,
+        'algorand': font.CHAR_ALGORAND,
     }
 
     BASE_CURRENCY_CHARACTER_MAP = {
@@ -130,25 +133,31 @@ class CryptoApp(App):
         'btc': font.CHAR_BTC,
     }
 
-    def __init__(self, *args, base_currency='usd', crypto='bitcoin', align='right', decimals=None, **kwargs):
+    def __init__(self, *args, base_currency='usd', crypto='bitcoin', align='right', decimals=None,
+                 thousands_separator='', **kwargs):
         super().__init__(*args, **kwargs)
         self.base_currency = base_currency
         self.crypto = crypto
         self.align = align
         self.decimals = decimals
+        self.thousands_separator = thousands_separator
 
     def update(self, first, remaining_duration):
         URL = 'https://api.coingecko.com/api/v3/simple/price?ids={}&vs_currencies={}'.format(self.crypto, self.base_currency)
         price = self.requests.get(URL).json()[self.crypto][self.base_currency]
 
         if self.decimals is not None:
-            str_price = ('{:.' + str(self.decimals) + 'f}').format(price)
+            str_price = ('{:,.' + str(self.decimals) + 'f}').format(price).replace(',', self.thousands_separator)
+        elif self.decimals is None and price < 0.1:
+            str_price = '{:,.4f}'.format(price).replace(',', self.thousands_separator)
         elif self.decimals is None and price < 1:
-            str_price = '{:.2f}'.format(price)
+            str_price = '{:,.3f}'.format(price).replace(',', self.thousands_separator)
         elif self.decimals is None and price < 10:
-            str_price = '{:.1f}'.format(price)
+            str_price = '{:,.2f}'.format(price).replace(',', self.thousands_separator)
+        elif self.decimals is None and price < 100:
+            str_price = '{:,.1f}'.format(price).replace(',', self.thousands_separator)
         else:
-            str_price = str(int(price))
+            str_price = '{:,}'.format(int(price)).replace(',', self.thousands_separator)
 
         print('This is ' + self.crypto + ' price: ' + str_price)
 
@@ -293,6 +302,9 @@ class MarketCap(App):
         'litecoin': font.CHAR_LTC,
         'polkadot': font.CHAR_POLKADOT,
         'kusama': font.CHAR_KSM,
+        'thorchain': font.CHAR_THORCHAIN,
+        'verasity': font.CHAR_VERASITY,
+        'algorand': font.CHAR_ALGORAND,
     }
 
     BASE_CURRENCY_CHARACTER_MAP = {
