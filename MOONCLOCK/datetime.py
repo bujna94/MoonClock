@@ -1,12 +1,15 @@
 from adafruit_datetime import *
+from ntp import NTP
 
 __tz_cache = {}
 
 
 class RTC:
 
-    def __init__(self, requests):
+    def __init__(self, requests, socketpool):
         self.requests = requests
+        self.socketpool = socketpool
+        self.ntp = NTP(socketpool)
 
         self.__load_time = None
         self.__datetime = None
@@ -15,10 +18,8 @@ class RTC:
     def datetime(self):
         import time
         if not self.__datetime:
-            dt = datetime.fromisoformat(self.requests.get('https://www.timeapi.io/api/TimeZone/zone?timeZone=etc/utc')
-                                        .json()['currentLocalTime'].split('.')[0])
             self.__load_time = time.monotonic()
-            self.__datetime = datetime.fromtimestamp(dt.timestamp())
+            self.__datetime = datetime.fromtimestamp(self.ntp.unixtime())
 
         return (self.__datetime + timedelta(seconds=time.monotonic() - self.__load_time)).timetuple()
 

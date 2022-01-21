@@ -113,7 +113,7 @@ try:
     display_group.clear()
     display_group.render_string('TIME  INIT', center=True)
     display_group.show()
-    rtc.set_time_source(RTC(requests_))
+    rtc.set_time_source(RTC(requests_, pool))
 except Exception as e:
     traceback.print_exception(type(e), e, e.__traceback__)
     reset()
