@@ -148,9 +148,13 @@ class CryptoApp(App):
 
         if self.decimals is not None:
             str_price = ('{:,.' + str(self.decimals) + 'f}').format(price).replace(',', self.thousands_separator)
+        elif self.decimals is None and price < 0.1:
+            str_price = '{:,.4f}'.format(price).replace(',', self.thousands_separator)
         elif self.decimals is None and price < 1:
-            str_price = '{:,.2f}'.format(price).replace(',', self.thousands_separator)
+            str_price = '{:,.3f}'.format(price).replace(',', self.thousands_separator)
         elif self.decimals is None and price < 10:
+            str_price = '{:,.2f}'.format(price).replace(',', self.thousands_separator)
+        elif self.decimals is None and price < 100:
             str_price = '{:,.1f}'.format(price).replace(',', self.thousands_separator)
         else:
             str_price = '{:,}'.format(int(price)).replace(',', self.thousands_separator)
