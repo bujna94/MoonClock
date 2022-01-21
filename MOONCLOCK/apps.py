@@ -122,6 +122,7 @@ class CryptoApp(App):
         'kusama': font.CHAR_KSM,
         'thorchain': font.CHAR_THORCHAIN,
         'verasity': font.CHAR_VERASITY,
+        'algorand': font.CHAR_ALGORAND,
     }
 
     BASE_CURRENCY_CHARACTER_MAP = {
@@ -297,6 +298,9 @@ class MarketCap(App):
         'litecoin': font.CHAR_LTC,
         'polkadot': font.CHAR_POLKADOT,
         'kusama': font.CHAR_KSM,
+        'thorchain': font.CHAR_THORCHAIN,
+        'verasity': font.CHAR_VERASITY,
+        'algorand': font.CHAR_ALGORAND,
     }
 
     BASE_CURRENCY_CHARACTER_MAP = {
