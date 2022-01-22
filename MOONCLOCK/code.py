@@ -2,6 +2,7 @@ import requests
 import adafruit_tca9548a
 import board
 import busio
+import json
 import microcontroller
 import rtc
 import socketpool
@@ -42,10 +43,15 @@ except ImportError:
 
 # Get configuration from a conf.py file
 try:
-    from conf import conf
-except ImportError:
-    print('No configuration found in conf.py, please add them there!')
-    raise
+    with open('conf.json', 'r') as f:
+        conf = json.loads(f.read())
+except Exception as e:
+    print(e)
+    try:
+        from conf import conf
+    except ImportError:
+        print('No configuration found in conf.py, please add them there!')
+        raise
 
 WIDTH = 128
 HEIGHT = 64
