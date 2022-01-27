@@ -2,6 +2,7 @@ import font
 import time
 
 from datetime import datetime, tz, timedelta
+from logo import get_logo, get_logos
 from utils import str_rjust, str_align, number_to_human
 
 
@@ -111,27 +112,6 @@ class TimeApp(App):
 
 
 class CryptoApp(App):
-    CRYPTO_CHARACTER_MAP = {
-        'cardano': font.CHAR_ADA,
-        'baked-token': font.CHAR_BAKED,
-        'bitcoin': font.CHAR_BTC,
-        'dogecoin': font.CHAR_DOGE,
-        'ethereum': font.CHAR_ETH,
-        'litecoin': font.CHAR_LTC,
-        'polkadot': font.CHAR_POLKADOT,
-        'kusama': font.CHAR_KSM,
-        'thorchain': font.CHAR_THORCHAIN,
-        'verasity': font.CHAR_VERASITY,
-        'algorand': font.CHAR_ALGORAND,
-    }
-
-    BASE_CURRENCY_CHARACTER_MAP = {
-        'usd': '$',
-        'eur': '€',
-        'gbp': '£',
-        'sats': font.CHAR_WIDESATOSHI,
-        'btc': font.CHAR_BTC,
-    }
 
     def __init__(self, *args, base_currency='usd', crypto='bitcoin', align='right', decimals=None,
                  thousands_separator='', **kwargs):
@@ -164,9 +144,9 @@ class CryptoApp(App):
         self.display_group.clear()
         self.display_group.render_string(
             '{0}{1}{2} '.format(
-                self.BASE_CURRENCY_CHARACTER_MAP.get(self.base_currency, ' '),
+                get_logo(self.base_currency),
                 str_align(str_price, 7, ' ', self.align),
-                self.CRYPTO_CHARACTER_MAP.get(self.crypto, ' ')
+                get_logo(self.crypto),
             ),
             center=True
         )
@@ -293,28 +273,6 @@ class Text(App):
 
 
 class MarketCap(App):
-    CRYPTO_CHARACTER_MAP = {
-        'cardano': font.CHAR_ADA,
-        'baked-token': font.CHAR_BAKED,
-        'bitcoin': font.CHAR_BTC,
-        'dogecoin': font.CHAR_DOGE,
-        'ethereum': font.CHAR_ETH,
-        'litecoin': font.CHAR_LTC,
-        'polkadot': font.CHAR_POLKADOT,
-        'kusama': font.CHAR_KSM,
-        'thorchain': font.CHAR_THORCHAIN,
-        'verasity': font.CHAR_VERASITY,
-        'algorand': font.CHAR_ALGORAND,
-    }
-
-    BASE_CURRENCY_CHARACTER_MAP = {
-        'usd': '$',
-        'eur': '€',
-        'gbp': '£',
-        'sats': font.CHAR_WIDESATOSHI,
-        'btc': font.CHAR_BTC,
-    }
-
     def __init__(self, *args, crypto='bitcoin', base_currency='usd', align='center', **kwargs):
         super().__init__(*args, **kwargs)
         self.crypto = crypto
@@ -336,9 +294,9 @@ class MarketCap(App):
         self.display_group.clear()
         self.display_group.render_string(
             '{0}{1}{2} '.format(
-                self.BASE_CURRENCY_CHARACTER_MAP.get(self.base_currency, ' '),
+                get_logo(self.base_currency),
                 str_align(str_market_cap, 7, ' ', self.align),
-                self.CRYPTO_CHARACTER_MAP.get(self.crypto, ' ')
+                get_logo(self.crypto),
             ),
             center=True
         )
