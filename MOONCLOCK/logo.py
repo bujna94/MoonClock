@@ -58,7 +58,7 @@ def get_logo(name, default=' '):
     return LOGOS_MAP.get(name.lower(), default)
 
 
-def get_logos(full_ticker):
+def get_logos(full_ticker, default=' '):
     full_ticker = full_ticker.lower()
 
     first_logo = None
@@ -66,8 +66,8 @@ def get_logos(full_ticker):
 
     for logo_name in LOGOS_MAP.keys():
         if full_ticker.find(logo_name) == 0:
-            first_logo = get_logo(logo_name)
+            first_logo = get_logo(logo_name, default=default)
         elif full_ticker.find(logo_name) > 0:
-            second_logo = get_logo(logo_name)
+            second_logo = get_logo(logo_name, default=default)
 
     return first_logo, second_logo
