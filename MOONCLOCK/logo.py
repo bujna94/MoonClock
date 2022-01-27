@@ -55,10 +55,12 @@ LOGOS_MAP = {
 
 
 def get_logo(name, default=' '):
-    return LOGOS_MAP.get(name, default)
+    return LOGOS_MAP.get(name.lower(), default)
 
 
 def get_logos(full_ticker):
+    full_ticker = full_ticker.lower()
+
     first_logo = None
     second_logo = None
 
