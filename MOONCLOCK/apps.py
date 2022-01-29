@@ -162,19 +162,23 @@ class CryptoApp(App):
     def get_coingecko_price(self):
         URL = 'https://api.coingecko.com/api/v3/simple/price?ids={}&vs_currencies={}'.format(
             self.crypto, self.base_currency)
-        return self.requests.get(URL).json()[self.crypto][self.base_currency]
+        return float(self.requests.get(URL).json()[self.crypto][self.base_currency])
 
     def get_binance_price(self):
         URL = 'https://api.binance.com/api/v3/ticker/price?symbol={}'.format(self.ticker.upper())
-        return self.requests.get(URL).json()['price']
+        return float(self.requests.get(URL).json()['price'])
 
     def get_coinbase_price(self):
         URL = 'https://api.pro.coinbase.com/products/{}/stats'.format(self.ticker.upper())
-        return self.requests.get(URL).json()['last']
+        return float(self.requests.get(URL).json()['last'])
 
     def get_ftx_price(self):
         URL = 'https://ftx.com/api/markets/{}'.format(self.ticker.upper())
-        return self.requests.get(URL).json()[self.crypto][self.base_currency]
+        return float(self.requests.get(URL).json()['price'])
+
+    def get_kucoin_price(self):
+        URL = 'https://api.kucoin.com/api/v1/market/orderbook/level1?symbol={}'.format(self.ticker.upper())
+        return float(self.requests.get(URL).json()['data']['price'])
 
 
 class AutoContrastApp(App):
