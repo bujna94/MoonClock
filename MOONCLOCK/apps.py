@@ -116,7 +116,7 @@ class CryptoApp(App):
     def __init__(self, *args, api='coingecko', base_currency=None, crypto=None, ticker=None, align='right', decimals=None,
                  thousands_separator='', **kwargs):
         super().__init__(*args, **kwargs)
-        self.api = api
+        self.api = api.lower()
         self.base_currency = base_currency
         self.crypto = crypto
         self.ticker = ticker
