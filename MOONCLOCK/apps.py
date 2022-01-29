@@ -113,18 +113,25 @@ class TimeApp(App):
 
 class CryptoApp(App):
 
-    def __init__(self, *args, base_currency='usd', crypto='bitcoin', align='right', decimals=None,
+    def __init__(self, *args, api='coingecko', base_currency=None, crypto=None, ticker=None, align='right', decimals=None,
                  thousands_separator='', **kwargs):
         super().__init__(*args, **kwargs)
+        self.api = api
         self.base_currency = base_currency
         self.crypto = crypto
+        self.ticker = ticker
         self.align = align
         self.decimals = decimals
         self.thousands_separator = thousands_separator
 
     def update(self, first, remaining_duration):
-        URL = 'https://api.coingecko.com/api/v3/simple/price?ids={}&vs_currencies={}'.format(self.crypto, self.base_currency)
-        price = self.requests.get(URL).json()[self.crypto][self.base_currency]
+        price = getattr(self, 'get_{}_price'.format(self.api), lambda *args, **kwargs: 0)()
+
+        if self.ticker:
+            crypto_logo, fiat_logo = get_logos(self.ticker)
+        else:
+            crypto_logo = get_logo(self.crypto)
+            fiat_logo = get_logo(self.base_currency)
 
         if self.decimals is not None:
             str_price = ('{:,.' + str(self.decimals) + 'f}').format(price).replace(',', self.thousands_separator)
@@ -144,13 +151,30 @@ class CryptoApp(App):
         self.display_group.clear()
         self.display_group.render_string(
             '{0}{1}{2} '.format(
-                get_logo(self.base_currency),
+                fiat_logo,
                 str_align(str_price, 7, ' ', self.align),
-                get_logo(self.crypto),
+                crypto_logo,
             ),
             center=True
         )
         self.display_group.show()
+
+    def get_coingecko_price(self):
+        URL = 'https://api.coingecko.com/api/v3/simple/price?ids={}&vs_currencies={}'.format(
+            self.crypto, self.base_currency)
+        return self.requests.get(URL).json()[self.crypto][self.base_currency]
+
+    def get_binance_price(self):
+        URL = 'https://api.binance.com/api/v3/ticker/price?symbol={}'.format(self.ticker.upper())
+        return self.requests.get(URL).json()['price']
+
+    def get_coinbase_price(self):
+        URL = 'https://api.pro.coinbase.com/products/{}/stats'.format(self.ticker.upper())
+        return self.requests.get(URL).json()['last']
+
+    def get_ftx_price(self):
+        URL = 'https://ftx.com/api/markets/{}'.format(self.ticker.upper())
+        return self.requests.get(URL).json()[self.crypto][self.base_currency]
 
 
 class AutoContrastApp(App):
