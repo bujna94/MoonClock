@@ -67,7 +67,7 @@ time.sleep(1)
 try:
     with open('conf.json', 'r') as f:
         conf = json.loads(f.read())
-except FileNotFoundError:
+except ValueError:
     # Backward compatibility
     try:
         from conf import conf
