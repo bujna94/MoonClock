@@ -41,18 +41,6 @@ except ImportError:
     print('WiFi secrets are kept in secrets.py, please add them there!')
     raise
 
-# Get configuration from a conf.py file
-try:
-    with open('conf.json', 'r') as f:
-        conf = json.loads(f.read())
-except Exception as e:
-    print(e)
-    try:
-        from conf import conf
-    except ImportError:
-        print('No configuration found in conf.py, please add them there!')
-        raise
-
 WIDTH = 128
 HEIGHT = 64
 
@@ -111,6 +99,24 @@ while not connected:
         display_group.render_string('scanning..', center=True)
         display_group.show()
         time.sleep(2)
+
+
+# Get configuration from a conf.py file
+try:
+    with open('conf.json', 'r') as f:
+        conf = json.loads(f.read())
+except FileNotFoundError:
+    # Backward compatibility
+    try:
+        from conf import conf
+    except Exception as e:
+        print(e)
+        display_group.render_string('CONF ERROR')
+        raise
+except Exception as e:
+    print(e)
+    display_group.render_string('CONF ERROR')
+
 
 pool = socketpool.SocketPool(wifi.radio)
 requests_ = requests.Session(pool, ssl.create_default_context())
