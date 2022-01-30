@@ -63,6 +63,25 @@ display_group.render_string('wifi setup', center=True)
 display_group.show()
 time.sleep(1)
 
+# Get configuration from a conf.py file
+try:
+    with open('conf.json', 'r') as f:
+        conf = json.loads(f.read())
+except FileNotFoundError:
+    # Backward compatibility
+    try:
+        from conf import conf
+    except Exception as e:
+        print(e)
+        display_group.render_string('CONF ERROR')
+        display_group.show()
+        raise
+except Exception as e:
+    print(e)
+    display_group.render_string('CONF ERROR')
+    display_group.show()
+    raise
+
 connected = False
 
 while not connected:
@@ -99,27 +118,6 @@ while not connected:
         display_group.render_string('scanning..', center=True)
         display_group.show()
         time.sleep(2)
-
-
-# Get configuration from a conf.py file
-try:
-    with open('conf.json', 'r') as f:
-        conf = json.loads(f.read())
-except FileNotFoundError:
-    # Backward compatibility
-    try:
-        from conf import conf
-    except Exception as e:
-        print(e)
-        display_group.render_string('CONF ERROR')
-        display_group.show()
-        raise
-except Exception as e:
-    print(e)
-    display_group.render_string('CONF ERROR')
-    display_group.show()
-    raise
-
 
 pool = socketpool.SocketPool(wifi.radio)
 requests_ = requests.Session(pool, ssl.create_default_context())
