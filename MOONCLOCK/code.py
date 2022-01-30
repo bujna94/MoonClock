@@ -112,10 +112,12 @@ except FileNotFoundError:
     except Exception as e:
         print(e)
         display_group.render_string('CONF ERROR')
+        display_group.show()
         raise
 except Exception as e:
     print(e)
     display_group.render_string('CONF ERROR')
+    display_group.show()
 
 
 pool = socketpool.SocketPool(wifi.radio)
