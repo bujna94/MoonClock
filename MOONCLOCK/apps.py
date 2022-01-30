@@ -174,7 +174,7 @@ class CryptoApp(App):
 
     def get_ftx_price(self):
         URL = 'https://ftx.com/api/markets/{}'.format(self.ticker.upper())
-        return float(self.requests.get(URL).json()['price'])
+        return float(self.requests.get(URL).json()['result']['price'])
 
     def get_kucoin_price(self):
         URL = 'https://api.kucoin.com/api/v1/market/orderbook/level1?symbol={}'.format(self.ticker.upper())
