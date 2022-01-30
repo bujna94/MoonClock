@@ -182,19 +182,22 @@ class CryptoApp(App):
 
 
 class AutoContrastApp(App):
-    def __init__(self, *args, latitude=None, longitude=None, contrast_after_sunrise=None, contrast_after_sunset=None,
+    def __init__(self, *args, latitude=None, longitude=None, latlng=None, contrast_after_sunrise=None, contrast_after_sunset=None,
                  **kwargs):
         kwargs['duration'] = 0
         super().__init__(*args, **kwargs)
 
-        self.latitude = latitude
-        self.longitude = longitude
+        self.latlng = latlng
+        if not self.latlng:
+            # For backward compatibility
+            self.latlng = (latitude, longitude)
+
         self.contrast_after_sunrise = contrast_after_sunrise
         self.contrast_after_sunset = contrast_after_sunset
 
     def update(self, first, remaining_duration):
         url = 'http://api.sunrise-sunset.org/json?lat={}&lng={}&date=today&formatted=0'.format(
-            self.latitude, self.longitude)
+            self.latlng[0], self.latlng[1])
 
         data = self.requests.get(url).json()['results']
 
