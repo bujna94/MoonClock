@@ -125,7 +125,7 @@ class CryptoApp(App):
         self.thousands_separator = thousands_separator
 
     def update(self, first, remaining_duration):
-        price = getattr(self, 'get_{}_price'.format(self.api), lambda *args, **kwargs: 0)()
+        price = getattr(self, 'get_{}_price'.format(self.api), lambda: 0)()
 
         if self.ticker:
             crypto_logo, fiat_logo = get_logos(self.ticker)
