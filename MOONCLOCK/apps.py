@@ -146,7 +146,7 @@ class CryptoApp(App):
         else:
             str_price = '{:,}'.format(int(price)).replace(',', self.thousands_separator)
 
-        print('This is ' + self.crypto + ' price: ' + str_price)
+        print('Price: ' + str_price)
 
         self.display_group.clear()
         self.display_group.render_string(
