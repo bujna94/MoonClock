@@ -113,18 +113,25 @@ class TimeApp(App):
 
 class CryptoApp(App):
 
-    def __init__(self, *args, base_currency='usd', crypto='bitcoin', align='right', decimals=None,
+    def __init__(self, *args, api='coingecko', base_currency=None, crypto=None, ticker=None, align='right', decimals=None,
                  thousands_separator='', **kwargs):
         super().__init__(*args, **kwargs)
+        self.api = api.lower()
         self.base_currency = base_currency
         self.crypto = crypto
+        self.ticker = ticker
         self.align = align
         self.decimals = decimals
         self.thousands_separator = thousands_separator
 
     def update(self, first, remaining_duration):
-        URL = 'https://api.coingecko.com/api/v3/simple/price?ids={}&vs_currencies={}'.format(self.crypto, self.base_currency)
-        price = self.requests.get(URL).json()[self.crypto][self.base_currency]
+        price = getattr(self, 'get_{}_price'.format(self.api), lambda: 0)()
+
+        if self.ticker:
+            crypto_logo, fiat_logo = get_logos(self.ticker)
+        else:
+            crypto_logo = get_logo(self.crypto)
+            fiat_logo = get_logo(self.base_currency)
 
         if self.decimals is not None:
             str_price = ('{:,.' + str(self.decimals) + 'f}').format(price).replace(',', self.thousands_separator)
@@ -139,34 +146,58 @@ class CryptoApp(App):
         else:
             str_price = '{:,}'.format(int(price)).replace(',', self.thousands_separator)
 
-        print('This is ' + self.crypto + ' price: ' + str_price)
+        print('Price: ' + str_price)
 
         self.display_group.clear()
         self.display_group.render_string(
             '{0}{1}{2} '.format(
-                get_logo(self.base_currency),
+                fiat_logo,
                 str_align(str_price, 7, ' ', self.align),
-                get_logo(self.crypto),
+                crypto_logo,
             ),
             center=True
         )
         self.display_group.show()
 
+    def get_coingecko_price(self):
+        URL = 'https://api.coingecko.com/api/v3/simple/price?ids={}&vs_currencies={}'.format(
+            self.crypto, self.base_currency)
+        return float(self.requests.get(URL).json()[self.crypto][self.base_currency])
+
+    def get_binance_price(self):
+        URL = 'https://api.binance.com/api/v3/ticker/price?symbol={}'.format(self.ticker.upper())
+        return float(self.requests.get(URL).json()['price'])
+
+    def get_coinbase_price(self):
+        URL = 'https://api.pro.coinbase.com/products/{}/stats'.format(self.ticker.upper())
+        return float(self.requests.get(URL).json()['last'])
+
+    def get_ftx_price(self):
+        URL = 'https://ftx.com/api/markets/{}'.format(self.ticker.upper())
+        return float(self.requests.get(URL).json()['result']['price'])
+
+    def get_kucoin_price(self):
+        URL = 'https://api.kucoin.com/api/v1/market/orderbook/level1?symbol={}'.format(self.ticker.upper())
+        return float(self.requests.get(URL).json()['data']['price'])
+
 
 class AutoContrastApp(App):
-    def __init__(self, *args, latitude=None, longitude=None, contrast_after_sunrise=None, contrast_after_sunset=None,
+    def __init__(self, *args, latitude=None, longitude=None, latlng=None, contrast_after_sunrise=None, contrast_after_sunset=None,
                  **kwargs):
         kwargs['duration'] = 0
         super().__init__(*args, **kwargs)
 
-        self.latitude = latitude
-        self.longitude = longitude
+        self.latlng = latlng
+        if not self.latlng:
+            # For backward compatibility
+            self.latlng = (latitude, longitude)
+
         self.contrast_after_sunrise = contrast_after_sunrise
         self.contrast_after_sunset = contrast_after_sunset
 
     def update(self, first, remaining_duration):
         url = 'http://api.sunrise-sunset.org/json?lat={}&lng={}&date=today&formatted=0'.format(
-            self.latitude, self.longitude)
+            self.latlng[0], self.latlng[1])
 
         data = self.requests.get(url).json()['results']
 
