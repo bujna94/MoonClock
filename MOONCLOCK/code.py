@@ -84,6 +84,10 @@ except Exception as e:
 
 connected = False
 
+display_group.clear()
+display_group.render_string('WIFI  INIT', center=True)
+display_group.show()
+
 while not connected:
     fail_count = 0
     for wifi_conf in secrets:
