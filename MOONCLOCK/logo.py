@@ -51,6 +51,9 @@ LOGOS_MAP = {
 
     'algo': font.CHAR_ALGORAND,
     'algorand': font.CHAR_ALGORAND,
+
+    'xmr': font.CHAR_MONERO,
+    'monero': font.CHAR_MONERO,
 }
 
 
@@ -71,3 +74,4 @@ def get_logos(full_ticker, default=' '):
             second_logo = get_logo(logo_name, default=default)
 
     return first_logo, second_logo
+
