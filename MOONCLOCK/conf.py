@@ -9,8 +9,8 @@ conf = {
         # },
         {
             'name': 'crypto',
-            'base_currency': 'usd',
-            'crypto': 'bitcoin',
+            'api': 'binance',  # Change this to use Binance API
+            'ticker': 'BTCUSDT',  # Use Binance ticker format
             'duration': 300
         },
         # {
@@ -21,3 +21,4 @@ conf = {
         # }
     ],
 }
+
